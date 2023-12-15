@@ -4,6 +4,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "effect": "^2.0.0-next.60",
     "express": "^4.18.2"
   },
   "devDependencies": {
