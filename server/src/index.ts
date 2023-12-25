@@ -1,45 +1,44 @@
 import express from "express";
 import { E, S } from "./exports";
-import { Effect, pipe } from "effect";
 
-type ActionHandler<I, O> = { in: I; out: O };
+type Unit = {};
+const unit = {};
 
-// type Action = { kind: "signUpUser" } | { kind: "otherAction" };
-
-type UserAlreadyExistsError = { kind: "userAlreadyExistsError" };
-type UserDoesNotExistError = { kind: "userDoesNotExistError" };
 type ResultParseError = { kind: "resultParseError" };
-type ParamsParseError = { kind: "paramsParseError" };
 
-// type ActionHandler<Params, Result> = (params: Params) => Result;
+const signUpUser = {
+  params: S.struct({
+    kind: S.literal("signUpUser"),
+    email: S.string,
+    password: S.string,
+  }),
+  result: S.eitherFromSelf(
+    S.struct({ kind: S.literal("userAlreadyExistsError") }),
+    S.undefined
+  ),
+};
 
-// type SignUpUser = ActionHandler<{ kind: "signUpUser" }, Either.Either<{}, {}>>;
+const requestPasswordReset = {
+  params: S.struct({
+    kind: S.literal("forgotPassword"),
+    email: S.string,
+  }),
+  result: S.eitherFromSelf(
+    S.struct({ kind: S.literal("userDoesNotExistError") }),
+    S.undefined
+  ),
+};
 
-type Endpoint = (body: string) => string;
+type Action<P, R> = { params: S.Schema<P>; result: S.Schema<R> };
 
-// type SignUpUser = { kind: "signUpUser"; email: string; password: string };
-// type ForgotPassword = { kind: "forgotPassword"; email: string };
+declare const invoke: <P, R>(
+  action: Action<P, R>
+) => (params: Omit<P, "kind">) => E.Either<ResultParseError, R>;
 
-// type Action = SignUpUser | ForgotPassword;
-// type Action =
-//   | ActionHandler<SignUpUser, E.Either<UserAlreadyExistsError, undefined>>
-//   | ActionHandler<ForgotPassword, E.Either<UserDoesNotExistError, undefined>>;
-
-// const invoke = <A extends Action>(test: A["in"]) =>
-//   undefined as unknown as A["out"];
-
-const SignUpUserParams = S.struct({
-  kind: S.literal("signUpUser"),
-  email: S.string,
-  password: S.string,
+const test = invoke(signUpUser)({
+  email: "john@post.com",
+  password: "admin1",
 });
-type SignUpUserParams = S.Schema.To<typeof SignUpUserParams>;
-
-const ForgotPasswordParams = S.struct({
-  kind: S.literal("forgotPassword"),
-  email: S.string,
-});
-type ForgotPasswordParams = S.Schema.To<typeof ForgotPasswordParams>;
 
 const port = 4000;
 const app = express();
