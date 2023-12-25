@@ -1,10 +1,7 @@
 import express from "express";
 import { E, S } from "./exports";
-
-type Unit = {};
-const unit = {};
-
-type ResultParseError = { kind: "resultParseError" };
+import { UserAlreadyExistsError, UserDoesNotExistError } from "./errors";
+import { Unit, invoke } from "./utils";
 
 const signUpUser = {
   params: S.struct({
@@ -12,10 +9,7 @@ const signUpUser = {
     email: S.string,
     password: S.string,
   }),
-  result: S.eitherFromSelf(
-    S.struct({ kind: S.literal("userAlreadyExistsError") }),
-    S.undefined
-  ),
+  result: S.eitherFromSelf(UserAlreadyExistsError, Unit),
 };
 
 const requestPasswordReset = {
@@ -23,17 +17,8 @@ const requestPasswordReset = {
     kind: S.literal("forgotPassword"),
     email: S.string,
   }),
-  result: S.eitherFromSelf(
-    S.struct({ kind: S.literal("userDoesNotExistError") }),
-    S.undefined
-  ),
+  result: S.eitherFromSelf(UserDoesNotExistError, Unit),
 };
-
-type Action<P, R> = { params: S.Schema<P>; result: S.Schema<R> };
-
-declare const invoke: <P, R>(
-  action: Action<P, R>
-) => (params: Omit<P, "kind">) => E.Either<ResultParseError, R>;
 
 const test = invoke(signUpUser)({
   email: "john@post.com",
