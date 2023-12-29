@@ -10,16 +10,23 @@ export const ResultParseError = S.struct({
   kind: S.literal("resultParseError"),
 });
 export type ResultParseError = S.Schema.To<typeof ResultParseError>;
+export const resultParseError: ResultParseError = { kind: "resultParseError" };
 
 export const UserAlreadyExistsError = S.struct({
   kind: S.literal("userAlreadyExistsError"),
 });
 export type UserAlreadyExistsError = S.Schema.To<typeof UserAlreadyExistsError>;
+export const userAlreadyExistsError: UserAlreadyExistsError = {
+  kind: "userAlreadyExistsError",
+};
 
 export const UserDoesNotExistError = S.struct({
   kind: S.literal("userDoesNotExistError"),
 });
 export type UserDoesNotExistError = S.Schema.To<typeof UserDoesNotExistError>;
+export const userDoesNotExistError: UserDoesNotExistError = {
+  kind: "userDoesNotExistError",
+};
 
 export const InvalidPasswordError = S.struct({
   kind: S.literal("invalidPasswordError"),

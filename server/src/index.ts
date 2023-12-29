@@ -1,5 +1,5 @@
 import express from "express";
-import { E, S } from "./exports";
+import { E, S, pipe } from "./exports";
 import {
   InvalidPasswordError,
   UserAlreadyExistsError,
@@ -39,18 +39,30 @@ const actions: Action<any, any>[] = [
   handle(requestPasswordReset)(({ kind, email }) => E.right(unit)),
 ];
 
-const test = endpoint(actions)(
-  JSON.stringify({ kind: "signUpUser", email: "myemail", password: "mypass" })
-);
-console.log(test);
-
 const port = 4000;
 const app = express();
+app.use(express.json());
 
-app.post("/action", (a, b, c) => {});
+app.post("/action", (req, res) =>
+  pipe(req.body, JSON.stringify, endpoint(actions), (x) =>
+    res.status(200).json(x)
+  )
+);
 
 app.get("/test", (_, res) => res.send("Hello World!"));
 
 app.listen(port, () =>
   console.log(`App listening at http://localhost:${port}`)
 );
+
+fetch("http://localhost:4000/action", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    kind: "signUpUser",
+    email: "john@post.com",
+    password: "mypass",
+  }),
+})
+  .then((x) => x.json())
+  .then(console.log);
