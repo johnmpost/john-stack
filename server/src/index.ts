@@ -1,11 +1,12 @@
 import express from "express";
-import { A, E, O, S, flow, pipe } from "./exports";
+import { E, S } from "./exports";
 import {
-  ParamsParseError,
+  InvalidPasswordError,
   UserAlreadyExistsError,
   UserDoesNotExistError,
 } from "./errors";
-import { Action, ActionHandler, Unit, handle, invoke, unit } from "./utils";
+import { ActionHandler, Action, handle, endpoint } from "./john-api";
+import { Unit, unit } from "./utils";
 
 const signUpUser = {
   params: S.struct({
@@ -13,7 +14,10 @@ const signUpUser = {
     email: S.string,
     password: S.string,
   }),
-  result: S.eitherFromSelf(UserAlreadyExistsError, Unit),
+  result: S.eitherFromSelf(
+    S.union(InvalidPasswordError, UserAlreadyExistsError),
+    Unit
+  ),
 };
 
 const requestPasswordReset = {
@@ -35,21 +39,10 @@ const actions: Action<any, any>[] = [
   handle(requestPasswordReset)(({ kind, email }) => E.right(unit)),
 ];
 
-const endpoint = (actions: Action<any, any>[]) => (requestBody: string) =>
-  pipe(
-    actions,
-    // literally just find the first action that parses to a Some and return the action and the unwrapped Some
-    // then apply the action handler to the parsed params
-    // A.map(
-    //   (action) =>
-    //     [action, S.parseOption(action.spec.params)(requestBody)] as const
-    // ),
-    // A.findFirst(([_, maybeRequestBody]) => O.isSome(maybeRequestBody)),
-    // O.map(([action, requestBody]) => O.getOrThrowWith(() => "impossible")),
-    // A.findFirst((x) => S.is(x.spec.params)(requestBody)),
-    // O.map((x) => x.handler),
-    O.getOrElse(() => ParamsParseError)
-  );
+const test = endpoint(actions)(
+  JSON.stringify({ kind: "signUpUser", email: "myemail", password: "mypass" })
+);
+console.log(test);
 
 const port = 4000;
 const app = express();
