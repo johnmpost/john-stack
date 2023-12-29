@@ -1,7 +1,7 @@
 import express from "express";
-import { E, S } from "./exports";
+import { A, E, S, match } from "./exports";
 import { UserAlreadyExistsError, UserDoesNotExistError } from "./errors";
-import { Unit, invoke } from "./utils";
+import { Action, ActionSpec, Unit, invoke } from "./utils";
 
 const signUpUser = {
   params: S.struct({
@@ -20,13 +20,35 @@ const requestPasswordReset = {
   result: S.eitherFromSelf(UserDoesNotExistError, Unit),
 };
 
-const test = invoke(signUpUser)({
+const handleSignUpUser = ({
+  kind,
+  email,
+  password,
+}: S.Schema.To<typeof signUpUser.params>): S.Schema.To<
+  typeof signUpUser.result
+> => E.right(Unit);
+
+const handleRequestPasswordReset = ({}: S.Schema.To<
+  typeof requestPasswordReset.params
+>): S.Schema.To<typeof requestPasswordReset.result> => E.right(Unit);
+
+const actions = [
+  [signUpUser, handleSignUpUser],
+  [requestPasswordReset, handleRequestPasswordReset],
+];
+
+const invoking = invoke(signUpUser)({
   email: "john@post.com",
   password: "admin1",
 });
 
+const endpoint = (requestBody: string) =>
+  S.parseOption(signUpUser.params)(requestBody);
+
 const port = 4000;
 const app = express();
+
+app.post("/action", (a, b, c) => {});
 
 app.get("/test", (_, res) => res.send("Hello World!"));
 
