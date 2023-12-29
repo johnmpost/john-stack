@@ -1,5 +1,10 @@
 import { S } from "./exports";
 
+export const ParamsParseError = S.struct({
+  kind: S.literal("paramsParseError"),
+});
+export type ParamsParseError = S.Schema.To<typeof ParamsParseError>;
+
 export const ResultParseError = S.struct({
   kind: S.literal("resultParseError"),
 });

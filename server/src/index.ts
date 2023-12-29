@@ -1,7 +1,11 @@
 import express from "express";
-import { A, E, S, match } from "./exports";
-import { UserAlreadyExistsError, UserDoesNotExistError } from "./errors";
-import { Action, ActionSpec, Unit, invoke } from "./utils";
+import { A, E, O, S, flow, pipe } from "./exports";
+import {
+  ParamsParseError,
+  UserAlreadyExistsError,
+  UserDoesNotExistError,
+} from "./errors";
+import { Action, ActionHandler, Unit, handle, invoke, unit } from "./utils";
 
 const signUpUser = {
   params: S.struct({
@@ -20,30 +24,32 @@ const requestPasswordReset = {
   result: S.eitherFromSelf(UserDoesNotExistError, Unit),
 };
 
-const handleSignUpUser = ({
+const handleSignUpUser: ActionHandler<typeof signUpUser> = ({
   kind,
   email,
   password,
-}: S.Schema.To<typeof signUpUser.params>): S.Schema.To<
-  typeof signUpUser.result
-> => E.right(Unit);
+}) => E.right(unit);
 
-const handleRequestPasswordReset = ({}: S.Schema.To<
-  typeof requestPasswordReset.params
->): S.Schema.To<typeof requestPasswordReset.result> => E.right(Unit);
-
-const actions = [
-  [signUpUser, handleSignUpUser],
-  [requestPasswordReset, handleRequestPasswordReset],
+const actions: Action<any, any>[] = [
+  { spec: signUpUser, handler: handleSignUpUser },
+  handle(requestPasswordReset)(({ kind, email }) => E.right(unit)),
 ];
 
-const invoking = invoke(signUpUser)({
-  email: "john@post.com",
-  password: "admin1",
-});
-
-const endpoint = (requestBody: string) =>
-  S.parseOption(signUpUser.params)(requestBody);
+const endpoint = (actions: Action<any, any>[]) => (requestBody: string) =>
+  pipe(
+    actions,
+    // literally just find the first action that parses to a Some and return the action and the unwrapped Some
+    // then apply the action handler to the parsed params
+    // A.map(
+    //   (action) =>
+    //     [action, S.parseOption(action.spec.params)(requestBody)] as const
+    // ),
+    // A.findFirst(([_, maybeRequestBody]) => O.isSome(maybeRequestBody)),
+    // O.map(([action, requestBody]) => O.getOrThrowWith(() => "impossible")),
+    // A.findFirst((x) => S.is(x.spec.params)(requestBody)),
+    // O.map((x) => x.handler),
+    O.getOrElse(() => ParamsParseError)
+  );
 
 const port = 4000;
 const app = express();
