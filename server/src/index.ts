@@ -1,11 +1,18 @@
 import express from "express";
-import { E, Ef, S, pipe } from "./exports";
+import { E, Ef, O, S, pipe } from "./exports";
 import {
   InvalidPasswordError,
   UserAlreadyExistsError,
   UserDoesNotExistError,
 } from "./errors";
-import { ActionHandler, Action, handle, endpoint, mkInvoke } from "./john-api";
+import {
+  ActionHandler,
+  Action,
+  handle,
+  endpoint,
+  mkInvoke,
+  ActionSpec,
+} from "./john-api";
 import { Unit, unit } from "./utils";
 
 const signUpUser = {
@@ -14,10 +21,7 @@ const signUpUser = {
     email: S.string,
     password: S.string,
   }),
-  result: S.eitherFromSelf(
-    S.union(InvalidPasswordError, UserAlreadyExistsError),
-    Unit
-  ),
+  result: S.either(S.union(InvalidPasswordError, UserAlreadyExistsError), Unit),
 };
 
 const requestPasswordReset = {
@@ -25,7 +29,7 @@ const requestPasswordReset = {
     kind: S.literal("forgotPassword"),
     email: S.string,
   }),
-  result: S.eitherFromSelf(UserDoesNotExistError, Unit),
+  result: S.either(UserDoesNotExistError, Unit),
 };
 
 const handleSignUpUser: ActionHandler<typeof signUpUser> = ({
@@ -34,7 +38,7 @@ const handleSignUpUser: ActionHandler<typeof signUpUser> = ({
   password,
 }) => E.right(unit);
 
-const actions: Action<any, any>[] = [
+const actions: Action<any, any, any, any>[] = [
   { spec: signUpUser, handler: handleSignUpUser },
   handle(requestPasswordReset)(({ kind, email }) => E.right(unit)),
 ];
@@ -53,18 +57,21 @@ app.listen(port, () =>
   console.log(`App listening at http://localhost:${port}`)
 );
 
-// const invoke = mkInvoke("http://localhost:4000/action");
-// Ef.runPromise(
-//   invoke(signUpUser)({
-//     kind: "signUpUser",
-//     email: "john@post.com",
-//     password: "mypass",
-//   })
-// ).then(console.log);
+const invoke = mkInvoke("http://localhost:4000/action");
+Ef.runPromise(
+  invoke(signUpUser)({
+    kind: "signUpUser",
+    email: "john@post.com",
+    password: "mypass",
+  })
+).then(console.log);
 
-const rest = {
-  right: 123,
-};
-const mest = E.right(123);
-const test = S.parse(S.eitherFromSelf(S.string, S.number))(rest);
-console.log(test);
+// const rest = {
+//   _tag: "Right",
+//   right: 123,
+//   // _id: "Either",
+// };
+// const mest = E.right(123);
+// const test = S.encode(S.either(S.string, S.number))(mest);
+// const test = S.parse(S.either(S.string, S.number))("error string");
+// console.log(rest, mest, test);

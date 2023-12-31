@@ -2,23 +2,35 @@ import { flow, pipe } from "effect";
 import { parseError, networkError, invalidActionError } from "./errors";
 import { O, A, Ef, S } from "./exports";
 
-export type ActionSpec<P, R> = { params: S.Schema<P>; result: S.Schema<R> };
-
-export type ActionHandler<T> = T extends ActionSpec<infer P, infer R>
-  ? (param: P) => R
-  : never;
-
-export type Action<P, R> = {
-  spec: ActionSpec<P, R>;
-  handler: (params: P) => R;
+export type ActionSpec<P, P2, R, R2> = {
+  params: S.Schema<P, P2>;
+  result: S.Schema<R, R2>;
 };
 
-const parseSimple = <T>(schema: S.Schema<T>) => flow(S.parse(schema));
+export type ActionHandler<T> = T extends ActionSpec<
+  any,
+  infer P2,
+  any,
+  infer R2
+>
+  ? (param: P2) => R2
+  : never;
+
+export type Action<P, P2, R, R2> = {
+  spec: ActionSpec<P, P2, R, R2>;
+  handler: (params: P2) => R2;
+};
+
+const parseSimple = <T, U>(schema: S.Schema<T, U>) =>
+  flow(
+    S.parseOption(schema),
+    Ef.mapError(() => parseError)
+  );
 
 const post =
   (route: string) =>
   <T>(body: T) =>
-  <U>(responseSchema: S.Schema<U>) =>
+  <U, V>(responseSchema: S.Schema<U, V>) =>
     pipe(
       Ef.tryPromise({
         try: () =>
@@ -40,17 +52,20 @@ const post =
 
 export const mkInvoke =
   (route: string) =>
-  <P, R>(action: ActionSpec<P, R>) =>
+  <P, P2, R, R2>(action: ActionSpec<P, P2, R, R2>) =>
   (params: P) =>
     pipe(post(route)(params)(action.result));
 
 export const handle =
-  <P, R>(spec: ActionSpec<P, R>) =>
-  (handler: ActionHandler<typeof spec>): Action<P, R> => ({ spec, handler });
+  <P, P2, R, R2>(spec: ActionSpec<P, P2, R, R2>) =>
+  (handler: ActionHandler<typeof spec>): Action<P, P2, R, R2> => ({
+    spec,
+    handler,
+  });
 
 const parseParams =
   (requestBody: string) =>
-  <P, R>(action: Action<P, R>) =>
+  <P, P2, R, R2>(action: Action<P, P2, R, R2>) =>
     O.Do.pipe(
       O.bind("params", () =>
         S.parseOption(S.parseJson(action.spec.params))(requestBody)
@@ -59,7 +74,7 @@ const parseParams =
     );
 
 export const endpoint =
-  (actions: Action<any, any>[]) => (requestBody: string) =>
+  (actions: Action<any, any, any, any>[]) => (requestBody: string) =>
     pipe(
       actions,
       A.map(parseParams(requestBody)),
