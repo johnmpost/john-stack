@@ -1,11 +1,11 @@
 import { S } from "./exports";
 
-export const InvalidActionError = S.struct({
-  kind: S.literal("invalidActionError"),
+export const NoMatchingActionError = S.struct({
+  kind: S.literal("noMatchingActionError"),
 });
-export type InvalidActionError = S.Schema.To<typeof InvalidActionError>;
-export const invalidActionError: InvalidActionError = {
-  kind: "invalidActionError",
+export type NoMatchingActionError = S.Schema.To<typeof NoMatchingActionError>;
+export const noMatchingActionError: NoMatchingActionError = {
+  kind: "noMatchingActionError",
 };
 
 export const UserAlreadyExistsError = S.struct({

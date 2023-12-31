@@ -5,14 +5,7 @@ import {
   UserAlreadyExistsError,
   UserDoesNotExistError,
 } from "./errors";
-import {
-  ActionHandler,
-  Action,
-  handle,
-  endpoint,
-  mkInvoke,
-  ActionSpec,
-} from "./john-api";
+import { ActionHandler, Action, handle, endpoint, mkInvoke } from "./john-api";
 import { Unit, unit } from "./utils";
 
 const signUpUser = {
@@ -57,21 +50,11 @@ app.listen(port, () =>
   console.log(`App listening at http://localhost:${port}`)
 );
 
-const invoke = mkInvoke("http://localhost:4000/action");
-Ef.runPromise(
-  invoke(signUpUser)({
-    kind: "signUpUser",
-    email: "john@post.com",
-    password: "mypass",
-  })
-).then(console.log);
-
-// const rest = {
-//   _tag: "Right",
-//   right: 123,
-//   // _id: "Either",
-// };
-// const mest = E.right(123);
-// const test = S.encode(S.either(S.string, S.number))(mest);
-// const test = S.parse(S.either(S.string, S.number))("error string");
-// console.log(rest, mest, test);
+// const invoke = mkInvoke("http://localhost:4000/action");
+// Ef.runPromise(
+//   invoke(signUpUser)({
+//     kind: "signUpUser",
+//     email: "john@post.com",
+//     password: "mypass",
+//   })
+// ).then(console.log);
