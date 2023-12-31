@@ -1,11 +1,11 @@
 import express from "express";
-import { E, S, pipe } from "./exports";
+import { E, Ef, S, pipe } from "./exports";
 import {
   InvalidPasswordError,
   UserAlreadyExistsError,
   UserDoesNotExistError,
 } from "./errors";
-import { ActionHandler, Action, handle, endpoint } from "./john-api";
+import { ActionHandler, Action, handle, endpoint, mkInvoke } from "./john-api";
 import { Unit, unit } from "./utils";
 
 const signUpUser = {
@@ -49,20 +49,22 @@ app.post("/action", (req, res) =>
   )
 );
 
-app.get("/test", (_, res) => res.send("Hello World!"));
-
 app.listen(port, () =>
   console.log(`App listening at http://localhost:${port}`)
 );
 
-fetch("http://localhost:4000/action", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    kind: "signUpUser",
-    email: "john@post.com",
-    password: "mypass",
-  }),
-})
-  .then((x) => x.json())
-  .then(console.log);
+// const invoke = mkInvoke("http://localhost:4000/action");
+// Ef.runPromise(
+//   invoke(signUpUser)({
+//     kind: "signUpUser",
+//     email: "john@post.com",
+//     password: "mypass",
+//   })
+// ).then(console.log);
+
+const rest = {
+  right: 123,
+};
+const mest = E.right(123);
+const test = S.parse(S.eitherFromSelf(S.string, S.number))(rest);
+console.log(test);
