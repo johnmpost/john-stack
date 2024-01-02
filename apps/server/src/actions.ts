@@ -2,10 +2,10 @@ import {
   InvalidPasswordError,
   UserAlreadyExistsError,
   UserDoesNotExistError,
-} from "./errors";
+} from "@local/errors";
 import { E, S } from "./exports";
-import { ActionHandler, Action, handle } from "./john-api";
-import { Unit, unit } from "./utils";
+import { ActionHandler, Action, handle } from "../../../packages/john-api/src";
+import { Unit, unit } from "@local/utils";
 
 const signUpUser = {
   params: S.struct({

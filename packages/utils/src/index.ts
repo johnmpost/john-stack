@@ -1,4 +1,4 @@
-import { S } from "./exports";
+import * as S from "@effect/schema/Schema";
 
 export const Unit = S.struct({ _id: S.literal("unit") });
 export type Unit = S.Schema.To<typeof Unit>;

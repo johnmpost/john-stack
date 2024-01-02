@@ -1,0 +1,7 @@
+{
+    "name": "@local/errors",
+    "main": "src/index",
+    "dependencies": {
+        "@effect/schema": "^0.56.1"
+    }
+}

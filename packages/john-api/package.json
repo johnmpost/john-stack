@@ -1,0 +1,9 @@
+{
+    "name": "@local/john-api",
+    "main": "src/index",
+    "dependencies": {
+        "@local/errors": "*",
+        "@effect/schema": "^0.56.1",
+        "effect": "^2.0.0-next.62"
+    }
+}

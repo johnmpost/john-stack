@@ -1,0 +1,8 @@
+{
+    "name": "@local/utils",
+    "main": "src/index",
+    "dependencies": {
+        "@effect/schema": "^0.56.1",
+        "effect": "^2.0.0-next.62"
+    }
+}

@@ -1,6 +1,9 @@
+import { parseError, networkError, noMatchingActionError } from "@local/errors";
 import { flow, pipe } from "effect";
-import { parseError, networkError, noMatchingActionError } from "./errors";
-import { O, A, Ef, S } from "./exports";
+import * as O from "effect/Option";
+import * as A from "effect/ReadonlyArray";
+import * as Ef from "effect/Effect";
+import * as S from "@effect/schema/Schema";
 
 export type ActionSpec<P, P2, R, R2> = {
   params: S.Schema<P, P2>;

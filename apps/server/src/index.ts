@@ -1,6 +1,6 @@
 import express from "express";
 import { pipe } from "./exports";
-import { endpoint } from "./john-api";
+import { endpoint } from "../../../packages/john-api/src";
 import { actions } from "./actions";
 
 const port = 4000;
