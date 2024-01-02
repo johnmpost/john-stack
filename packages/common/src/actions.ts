@@ -1,11 +1,11 @@
+import { S, E } from "../exports";
 import {
   InvalidPasswordError,
   UserAlreadyExistsError,
   UserDoesNotExistError,
-} from "@local/errors";
-import { E, S } from "./exports";
-import { ActionHandler, Action, handle } from "../../../packages/john-api/src";
-import { Unit, unit } from "@local/utils";
+} from "./errors";
+import { ActionHandler, Action, handle } from "./john-api";
+import { Unit, unit } from "./utils";
 
 const signUpUser = {
   params: S.struct({

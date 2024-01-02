@@ -1,4 +1,4 @@
-import * as S from "@effect/schema/Schema";
+import { S } from "../exports";
 
 export const NoMatchingActionError = S.struct({
   kind: S.literal("noMatchingActionError"),
