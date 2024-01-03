@@ -8,6 +8,8 @@
     "strict": true,
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
+    "baseUrl": ".",
+    "paths": {"@common/*": ["../common/src/*"]}
   },
   "include": ["src", "../common/src/*"],
 }
