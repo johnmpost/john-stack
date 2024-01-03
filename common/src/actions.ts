@@ -24,13 +24,12 @@ const requestPasswordReset = {
   result: S.either(UserDoesNotExistError, Unit),
 };
 
-const handleSignUpUser: ActionHandler<typeof signUpUser> = ({
-  kind,
-  email,
-  password,
-}) => E.right(unit);
+const handleSignUpUser =
+  (someDependency: any): ActionHandler<typeof signUpUser> =>
+  ({ kind, email, password }) =>
+    E.right(unit);
 
 export const actions: Action<any, any, any, any>[] = [
-  { spec: signUpUser, handler: handleSignUpUser },
+  handle(signUpUser)(handleSignUpUser("dependency here")),
   handle(requestPasswordReset)(({ kind, email }) => E.right(unit)),
 ];
