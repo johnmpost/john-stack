@@ -1,6 +1,6 @@
 import express from "express";
-import { actions } from "@local/common/src/actions";
-import { endpoint } from "@local/common/src/john-api";
+import { actions } from "common/src/actions";
+import { endpoint } from "common/src/john-api";
 import { pipe } from "effect";
 
 const port = 4000;
