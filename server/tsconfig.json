@@ -9,4 +9,5 @@
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
   },
+  "include": ["src", "../common/src/*"],
 }
