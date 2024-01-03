@@ -1,3 +1,4 @@
+import { networkError } from "@common/errors";
 import { useState } from "react";
 
 function App() {
@@ -5,18 +6,13 @@ function App() {
 
   return (
     <>
-      <h1>Vite + React</h1>
+      <h1>john-stack-client</h1>
       <div>
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        <p>{JSON.stringify(networkError)}</p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   );
 }

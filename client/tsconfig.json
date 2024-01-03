@@ -18,7 +18,11 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Pretty paths */
+    "baseUrl": ".",
+    "paths": {"@common/*": ["../common/src/*"]}
   },
   "include": ["src", "../common/src/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
