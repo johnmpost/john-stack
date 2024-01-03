@@ -65,7 +65,7 @@ export const mkInvoke =
   (params: P) =>
     post(route)(params)(action.result);
 
-export const handle =
+export const action =
   <P, P2, R, R2>(spec: ActionSpec<P, P2, R, R2>) =>
   (handler: ActionHandler<typeof spec>): Action<P, P2, R, R2> => ({
     spec,
@@ -80,7 +80,7 @@ const parseParams =
       O.map((params) => [action, params] as const)
     );
 
-export const endpoint =
+export const mkRequestHandler =
   (actions: Action<any, any, any, any>[]) => (requestBody: string) =>
     pipe(
       actions,
