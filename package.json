@@ -2,9 +2,7 @@
     "name": "john-stack",
     "private": true,
     "workspaces": [
-    "server",
-    "client",
-    "common",
-    "data"
+    "myclient",
+    "mycommon"
     ]
 }
