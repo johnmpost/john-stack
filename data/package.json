@@ -3,14 +3,21 @@
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn ./src/index.ts",
     "build": "tsc",
-    "start": "TS_NODE_BASEURL=./dist node -r tsconfig-paths/register ./dist/index.js"
+    "start": "TS_NODE_BASEURL=./dist node -r tsconfig-paths/register ./dist/index.js",
+    "generate": "graphql-codegen --config ./src/codegen.ts"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.8",
     "@apollo/server": "^4.10.0",
     "graphql": "^16.8.1",
     "pg": "^8.11.3"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-react-apollo": "^4.1.0",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@types/node": "^20.10.4",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
