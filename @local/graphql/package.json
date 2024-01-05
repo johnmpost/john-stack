@@ -1,5 +1,6 @@
 {
-  "name": "mygraphql",
+  "name": "@local/graphql",
+  "main": "src/index.gen.ts",
   "scripts": {
     "generate": "graphql-codegen --config ./src/codegen.ts"
   },

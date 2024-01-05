@@ -1,13 +1,13 @@
 {
-  "name": "myapollo",
+  "name": "@local/apollo",
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn ./src/index.ts",
     "build": "tsc",
     "start": "TS_NODE_BASEURL=./dist node -r tsconfig-paths/register ./dist/index.js"
   },
   "dependencies": {
-    "mygraphql": "*",
-    "mycommon": "*",
+    "@local/graphql": "*",
+    "@local/common": "*",
     "@apollo/server": "^4.10.0",
     "graphql": "^16.8.1",
     "pg": "^8.11.3"

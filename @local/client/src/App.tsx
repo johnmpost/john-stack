@@ -1,8 +1,10 @@
 import { networkError } from "@common/errors";
+import { useGetUsersQuery } from "@local/graphql";
 import { useState } from "react";
 
 function App() {
   const [count, setCount] = useState(0);
+  const { data: _ } = useGetUsersQuery();
 
   return (
     <>

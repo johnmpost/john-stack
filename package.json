@@ -2,7 +2,9 @@
     "name": "john-stack",
     "private": true,
     "workspaces": [
-    "myclient",
-    "mycommon"
+    "@local/common",
+    "@local/graphql",
+    "@local/apollo",
+    "@local/client"
     ]
 }

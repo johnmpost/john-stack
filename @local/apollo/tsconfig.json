@@ -11,5 +11,5 @@
     // "baseUrl": ".",
     // "paths": {"@graphql/local/*": ["../graphql/src/*"]}
   },
-  "include": ["src", "../graphql/src/*"],
+  // "include": ["src", "../../graphql/src/*"],
 }
