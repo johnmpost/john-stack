@@ -11,6 +11,6 @@ const resolvers: Resolvers = {};
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
-startStandaloneServer(server).then(({ url }) =>
+startStandaloneServer(server, { listen: { port: 4001 } }).then(({ url }) =>
   console.log(`Server ready at ${url}`)
 );

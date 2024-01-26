@@ -9,7 +9,7 @@ const invoke = mkInvoke("http://localhost:4000/action");
 
 function App() {
   const [count, setCount] = useState(0);
-  // const { data: _ } = useGetUsersQuery();
+  const { data: _ } = useGetUsersQuery();
 
   return (
     <>
