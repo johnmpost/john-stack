@@ -1,11 +1,10 @@
-import { S, E } from "../exports";
+import { S } from "../exports";
 import {
   InvalidPasswordError,
   UserAlreadyExistsError,
   UserDoesNotExistError,
 } from "./errors";
-import { ActionHandler } from "./john-api";
-import { Unit, unit } from "./utils";
+import { Unit } from "./utils";
 
 export const signUpUser = {
   params: S.struct({
@@ -26,8 +25,3 @@ export const requestPasswordReset = {
   }),
   result: S.eitherFromSelf(UserDoesNotExistError, Unit),
 };
-
-export const handleSignUpUser =
-  (someDependency: any): ActionHandler<typeof signUpUser> =>
-  ({ kind, email, password }) =>
-    E.right(unit);

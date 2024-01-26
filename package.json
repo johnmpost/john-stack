@@ -5,6 +5,7 @@
     "@local/common",
     "@local/graphql",
     "@local/apollo",
-    "@local/client"
+    "@local/client",
+    "@local/johnapi"
     ]
 }
