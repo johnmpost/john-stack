@@ -1,16 +1,16 @@
 import express from "express";
 import { pipe } from "effect";
-import { mkRequestHandler, mkAction, parseParams } from "@common/john-api";
-import { requestPasswordReset, signUpUser } from "@common/actions";
-import { unit } from "@common/utils";
-import { handleSignUpUser } from "./handlers";
-import * as E from "effect/Either";
+import { mkRequestHandler, mkAction } from "@common/john-api";
+import { compareTractors, listTractors } from "@common/actions";
+import { handleCompareTractors, handleListTractors } from "./handlers";
 
 // create the request handler by adding necessary dependencies
 
+const sessionId = "get from async login endpoint";
+
 const handler = mkRequestHandler([
-  mkAction(signUpUser)(handleSignUpUser("dependency here")),
-  mkAction(requestPasswordReset)(({ kind, email }) => E.right(unit)),
+  mkAction(listTractors)(handleListTractors(sessionId)),
+  mkAction(compareTractors)(handleCompareTractors(sessionId)),
 ]);
 
 // use it in any http server or cloud function platform

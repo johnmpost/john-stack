@@ -1,24 +1,15 @@
 import { S } from "../exports";
-import {
-  InvalidPasswordError,
-  UserAlreadyExistsError,
-  UserDoesNotExistError,
-} from "./errors";
-import { Unit } from "./utils";
 
-export const signUpUser = {
-  params: S.struct({
-    kind: S.literal("signUpUser"),
-    email: S.string,
-    password: S.string,
-  }),
-  result: S.either(S.union(InvalidPasswordError, UserAlreadyExistsError), Unit),
+export const listTractors = {
+  params: S.struct({ kind: S.literal("listTractors") }),
+  result: S.array(S.string),
 };
 
-export const requestPasswordReset = {
+export const compareTractors = {
   params: S.struct({
-    kind: S.literal("forgotPassword"),
-    email: S.string,
+    kind: S.literal("compareTractors"),
+    a: S.string,
+    b: S.string,
   }),
-  result: S.either(UserDoesNotExistError, Unit),
+  result: S.string,
 };

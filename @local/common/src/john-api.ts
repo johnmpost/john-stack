@@ -67,7 +67,7 @@ export const mkAction =
     handler,
   });
 
-export const parseParams =
+const parseParams =
   (requestBody: string) =>
   <P, P2, R, R2>(action: Action<P, P2, R, R2>) =>
     pipe(
