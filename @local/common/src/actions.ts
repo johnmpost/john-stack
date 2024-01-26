@@ -12,10 +12,7 @@ export const signUpUser = {
     email: S.string,
     password: S.string,
   }),
-  result: S.eitherFromSelf(
-    S.union(InvalidPasswordError, UserAlreadyExistsError),
-    Unit
-  ),
+  result: S.either(S.union(InvalidPasswordError, UserAlreadyExistsError), Unit),
 };
 
 export const requestPasswordReset = {
@@ -23,5 +20,5 @@ export const requestPasswordReset = {
     kind: S.literal("forgotPassword"),
     email: S.string,
   }),
-  result: S.eitherFromSelf(UserDoesNotExistError, Unit),
+  result: S.either(UserDoesNotExistError, Unit),
 };

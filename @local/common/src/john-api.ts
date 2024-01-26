@@ -5,21 +5,21 @@ import * as Ef from "effect/Effect";
 import * as S from "@effect/schema/Schema";
 import { networkError, noMatchingActionError, parseError } from "./errors";
 
-export type ActionSpec<P, R> = {
-  params: S.Schema<never, P>;
-  result: S.Schema<never, R>;
+export type ActionSpec<P, P2, R, R2> = {
+  params: S.Schema<never, P, P2>;
+  result: S.Schema<never, R, R2>;
 };
 
-export type ActionHandler<T> = T extends ActionSpec<infer P, infer R>
+export type ActionHandler<T> = T extends ActionSpec<any, infer P, any, infer R>
   ? (params: P) => R
   : never;
 
-export type Action<P, R> = {
-  spec: ActionSpec<P, R>;
-  handler: (params: P) => R;
+export type Action<P, P2, R, R2> = {
+  spec: ActionSpec<P, P2, R, R2>;
+  handler: (params: P2) => R2;
 };
 
-const decodeOrParseError = <T>(schema: S.Schema<never, T>) =>
+const decodeOrParseError = <T, U>(schema: S.Schema<never, T, U>) =>
   flow(
     S.decodeEither(schema),
     Ef.mapError(() => parseError)
@@ -47,7 +47,7 @@ const parseJsonBody = (response: Response) =>
 const post =
   (route: string) =>
   <T>(body: T) =>
-  <V>(responseSchema: S.Schema<never, V>) =>
+  <U, V>(responseSchema: S.Schema<never, U, V>) =>
     pipe(
       postAsJson(route)(body),
       Ef.flatMap(parseJsonBody),
@@ -56,29 +56,29 @@ const post =
 
 export const mkInvoke =
   (route: string) =>
-  <P, R>(action: ActionSpec<P, R>) =>
-  (params: P) =>
+  <P, P2, R, R2>(action: ActionSpec<P, P2, R, R2>) =>
+  (params: P2) =>
     post(route)(params)(action.result);
 
 export const mkAction =
-  <P, R>(spec: ActionSpec<P, R>) =>
-  (handler: ActionHandler<typeof spec>): Action<P, R> => ({
+  <P, P2, R, R2>(spec: ActionSpec<P, P2, R, R2>) =>
+  (handler: ActionHandler<typeof spec>): Action<P, P2, R, R2> => ({
     spec,
     handler,
   });
 
-const parseParams =
+export const parseParams =
   (requestBody: string) =>
-  <P, R>(action: Action<P, R>) =>
+  <P, P2, R, R2>(action: Action<P, P2, R, R2>) =>
     pipe(
       requestBody,
       S.decodeOption(S.parseJson()),
-      S.decodeUnknownOption(action.spec.params),
+      O.flatMap(S.decodeUnknownOption(action.spec.params)),
       O.map((params) => [action, params] as const)
     );
 
 export const mkRequestHandler =
-  (actions: Action<any, any>[]) => (requestBody: string) =>
+  (actions: Action<any, any, any, any>[]) => (requestBody: string) =>
     pipe(
       actions,
       A.map(parseParams(requestBody)),

@@ -1,10 +1,10 @@
 import express from "express";
 import { pipe } from "effect";
-import { mkRequestHandler, mkAction } from "@common/john-api";
+import { mkRequestHandler, mkAction, parseParams } from "@common/john-api";
 import { requestPasswordReset, signUpUser } from "@common/actions";
-import { E } from "../../common/exports.js";
 import { unit } from "@common/utils";
-import { handleSignUpUser } from "./handlers.js";
+import { handleSignUpUser } from "./handlers";
+import * as E from "effect/Either";
 
 // create the request handler by adding necessary dependencies
 
