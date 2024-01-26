@@ -11,7 +11,7 @@ export type ActionSpec<P, R> = {
 };
 
 export type ActionHandler<T> = T extends ActionSpec<infer P, infer R>
-  ? (param: P) => R
+  ? (params: P) => R
   : never;
 
 export type Action<P, R> = {
