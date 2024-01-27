@@ -1,10 +1,10 @@
 import express from "express";
 import { pipe } from "effect";
-import { mkRequestHandler, mkAction } from "@common/john-api";
-import { compareTractors, listTractors } from "@common/actions";
+import * as Ef from "effect/Effect";
 import { handleCompareTractors, handleListTractors } from "./handlers";
-import { Ef } from "../../common/exports";
 import { Request, Response } from "express";
+import { listTractors, compareTractors } from "@local/common/actions";
+import { mkRequestHandler, mkAction } from "@local/common/johnapi";
 
 // create the request handler by adding necessary dependencies
 

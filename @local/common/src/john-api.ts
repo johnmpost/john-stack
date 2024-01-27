@@ -1,8 +1,5 @@
-import { flow, identity, pipe } from "effect";
-import * as O from "effect/Option";
-import * as A from "effect/ReadonlyArray";
-import * as Ef from "effect/Effect";
-import * as S from "@effect/schema/Schema";
+import { flow, pipe, identity } from "effect";
+import { S, Ef, O, A } from "../exports";
 import { networkError, noMatchingActionError, parseError } from "./errors";
 
 export type ActionSpec<P, P2, R, R2> = {

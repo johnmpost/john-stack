@@ -2,7 +2,7 @@ import { listTractors } from "@common/actions";
 import { mkInvoke } from "@common/john-api";
 import { useGetUsersQuery } from "@local/graphql";
 import { useState } from "react";
-import { Ef } from "../../common/exports";
+import * as Ef from "effect/Effect";
 
 const invoke = mkInvoke("http://localhost:4000/action");
 

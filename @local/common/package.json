@@ -1,5 +1,11 @@
 {
     "name": "@local/common",
+    "exports": {
+      "./actions": "./src/actions.ts",
+      "./utils": "./src/utils.ts",
+      "./errors": "./src/errors.ts",
+      "./johnapi": "./src/john-api.ts"
+    },
     "dependencies": {
         "@effect/schema": "^0.61.1",
         "effect": "^2.2.2"

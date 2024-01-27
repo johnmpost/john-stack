@@ -1,6 +1,6 @@
-import { listTractors, compareTractors } from "@common/actions";
-import { ActionHandler } from "@common/john-api";
-import { Ef } from "../../common/exports";
+import { compareTractors, listTractors } from "@local/common/actions";
+import { ActionHandler } from "@local/common/johnapi";
+import * as Ef from "effect/Effect";
 
 export const handleListTractors =
   (sessionId: string): ActionHandler<typeof listTractors> =>
