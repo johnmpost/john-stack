@@ -9,4 +9,9 @@
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
   },
+  "references": [
+    {
+      "path": "../common"
+    }
+  ]
 }

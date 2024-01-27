@@ -3,8 +3,8 @@ import { ActionHandler } from "@local/common/johnapi";
 import * as Ef from "effect/Effect";
 
 export const handleListTractors =
-  (sessionId: string): ActionHandler<typeof listTractors> =>
-  ({ kind }) => {
+  (_sessionIdDependency: string): ActionHandler<typeof listTractors> =>
+  () => {
     return Ef.succeed([
       "John Deere 6789",
       "CaseIH Magnum 380",
@@ -13,8 +13,8 @@ export const handleListTractors =
   };
 
 export const handleCompareTractors =
-  (sessionId: string): ActionHandler<typeof compareTractors> =>
-  ({ kind, a, b }) =>
+  (_sessionIdDependency: string): ActionHandler<typeof compareTractors> =>
+  ({ a, b }) =>
     Ef.succeed(
       `When looking at the similarities and differences between the ${a} and the ${b}, yadda yadda. In conclusion, the ${a} is better.`
     );

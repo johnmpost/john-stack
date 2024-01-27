@@ -1,13 +1,13 @@
 {
-    "name": "@local/common",
-    "exports": {
-      "./actions": "./src/actions.ts",
-      "./utils": "./src/utils.ts",
-      "./errors": "./src/errors.ts",
-      "./johnapi": "./src/john-api.ts"
-    },
-    "dependencies": {
-        "@effect/schema": "^0.61.1",
-        "effect": "^2.2.2"
-    }
+  "name": "@local/common",
+  "exports": {
+    "./actions": "./dist/src/actions.js",
+    "./utils": "./dist/src/utils.js",
+    "./errors": "./dist/src/errors.js",
+    "./johnapi": "./dist/src/john-api.js"
+  },
+  "dependencies": {
+      "@effect/schema": "^0.61.1",
+      "effect": "^2.2.2"
+  }
 }
