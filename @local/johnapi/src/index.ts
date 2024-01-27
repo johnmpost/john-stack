@@ -3,6 +3,8 @@ import { pipe } from "effect";
 import { mkRequestHandler, mkAction } from "@common/john-api";
 import { compareTractors, listTractors } from "@common/actions";
 import { handleCompareTractors, handleListTractors } from "./handlers";
+import { Ef } from "../../common/exports";
+import { Request, Response } from "express";
 
 // create the request handler by adding necessary dependencies
 
@@ -19,10 +21,15 @@ const port = 4000;
 const app = express();
 app.use(express.json());
 
-app.post("/action", (req, res) =>
-  pipe(req.body, JSON.stringify, handler, (x) => res.status(200).json(x))
-);
+const expressHandler = async (req: Request, res: Response) =>
+  await pipe(
+    req.body,
+    JSON.stringify,
+    handler,
+    Ef.map((x) => res.status(200).json(x)),
+    Ef.runPromise
+  );
 
-app.listen(port, () =>
-  console.log(`App listening at http://localhost:${port}`)
-);
+app.post("/action", expressHandler);
+
+app.listen(port, () => console.log(`Listening at http://localhost:${port}`));

@@ -1,5 +1,4 @@
-import { signUpUser } from "@common/actions";
-import { networkError } from "@common/errors";
+import { listTractors } from "@common/actions";
 import { mkInvoke } from "@common/john-api";
 import { useGetUsersQuery } from "@local/graphql";
 import { useState } from "react";
@@ -20,14 +19,13 @@ function App() {
         </button>
         <button
           onClick={() =>
-            invoke(signUpUser)({ kind: "signUpUser", email: "", password: "" })
+            invoke(listTractors)({ kind: "listTractors" })
               .pipe(Ef.runPromise)
               .then(console.log)
           }
         >
           test api
         </button>
-        <p>{JSON.stringify(networkError)}</p>
       </div>
     </>
   );

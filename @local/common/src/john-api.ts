@@ -1,4 +1,4 @@
-import { flow, pipe } from "effect";
+import { flow, identity, pipe } from "effect";
 import * as O from "effect/Option";
 import * as A from "effect/ReadonlyArray";
 import * as Ef from "effect/Effect";
@@ -11,12 +11,12 @@ export type ActionSpec<P, P2, R, R2> = {
 };
 
 export type ActionHandler<T> = T extends ActionSpec<any, infer P, any, infer R>
-  ? (params: P) => R
+  ? (params: P) => Ef.Effect<never, never, R>
   : never;
 
 export type Action<P, P2, R, R2> = {
   spec: ActionSpec<P, P2, R, R2>;
-  handler: (params: P2) => R2;
+  handler: (params: P2) => Ef.Effect<never, never, R2>;
 };
 
 const decodeOrParseError = <T, U>(schema: S.Schema<never, T, U>) =>
@@ -84,6 +84,7 @@ export const mkRequestHandler =
       A.map(parseParams(requestBody)),
       A.getSomes,
       A.head,
-      O.map(([action, params]) => action.handler(params)),
-      O.getOrElse(() => noMatchingActionError)
+      Ef.flatMap(([action, params]) => action.handler(params)),
+      Ef.mapError(() => noMatchingActionError),
+      Ef.match({ onFailure: identity, onSuccess: identity })
     );
