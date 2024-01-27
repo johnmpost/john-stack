@@ -2,10 +2,12 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
+    "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
+    "composite": true
   },
 }

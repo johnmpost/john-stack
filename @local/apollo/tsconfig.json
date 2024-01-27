@@ -1,15 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "commonjs",
+    "module": "Node16",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
-    // "baseUrl": ".",
-    // "paths": {"@graphql/local/*": ["../graphql/src/*"]}
   },
-  // "include": ["src", "../../graphql/src/*"],
+  "references": [
+    {
+      "path": "../common"
+    },
+    // {
+    //   "path": "../graphql"
+    // }
+  ]
 }
