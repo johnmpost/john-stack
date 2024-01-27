@@ -4,7 +4,7 @@
     "./actions": "./dist/src/actions.js",
     "./utils": "./dist/src/utils.js",
     "./errors": "./dist/src/errors.js",
-    "./johnapi": "./dist/src/john-api.js"
+    "./johnapi": "./dist/src/johnapi.js"
   },
   "dependencies": {
       "@effect/schema": "^0.61.1",
