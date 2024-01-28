@@ -10,11 +10,7 @@
     "exactOptionalPropertyTypes": true,
   },
   "references": [
-    {
-      "path": "../common"
-    },
-    // {
-    //   "path": "../graphql"
-    // }
+    { "path": "../common" },
+    { "path": "../graphql" }
   ]
 }
