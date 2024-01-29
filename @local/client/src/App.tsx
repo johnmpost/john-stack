@@ -1,8 +1,8 @@
-import { listTractors } from "@common/actions";
-import { mkInvoke } from "@common/john-api";
 import { useGetUsersQuery } from "@local/graphql";
 import { useState } from "react";
 import * as Ef from "effect/Effect";
+import { listTractors } from "@local/common/actions";
+import { mkInvoke } from "@local/common/johnapi";
 
 const invoke = mkInvoke("http://localhost:4000/action");
 

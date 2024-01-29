@@ -10,8 +10,6 @@
     "exactOptionalPropertyTypes": true,
   },
   "references": [
-    {
-      "path": "../common"
-    }
+    { "path": "../common" }
   ]
 }
