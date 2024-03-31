@@ -1,4 +1,4 @@
-node_modules
-**/dist
-**/.vite_cache
+node_modules/
+dist/
+.vite_cache/
 *.gen.ts
