@@ -1,4 +1,4 @@
-import { S } from "../exports";
+import { S } from "./toolbox";
 
 export const listTractors = {
   params: S.struct({ kind: S.literal("listTractors") }),

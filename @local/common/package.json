@@ -1,13 +1,9 @@
 {
   "name": "@local/common",
-  "exports": {
-    "./actions": "./dist/src/actions.js",
-    "./utils": "./dist/src/utils.js",
-    "./errors": "./dist/src/errors.js",
-    "./johnapi": "./dist/src/johnapi.js"
-  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "dependencies": {
-      "@effect/schema": "^0.61.1",
-      "effect": "^2.2.2"
+    "@effect/schema": "^0.61.1",
+    "effect": "^2.2.2"
   }
 }

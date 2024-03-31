@@ -1,4 +1,4 @@
-import { S } from "../exports";
+import { S } from "./toolbox";
 
 export const NoMatchingActionError = S.struct({
   kind: S.literal("noMatchingActionError"),
