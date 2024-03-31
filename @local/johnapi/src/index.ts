@@ -1,6 +1,7 @@
 import express from "express";
 import { pipe } from "effect";
 import * as Ef from "effect/Effect";
+import * as O from "effect/Option";
 import { handleCompareTractors, handleListTractors } from "./handlers";
 import { Request, Response } from "express";
 import { listTractors, compareTractors } from "@local/common/actions";
@@ -27,6 +28,7 @@ import { mkRequestHandler, mkAction } from "@local/common/johnapi";
       req.body,
       JSON.stringify,
       handler,
+      O.getOrThrow,
       Ef.map((x) => res.status(200).json(x)),
       Ef.runPromise
     );

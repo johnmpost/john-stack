@@ -1,11 +1,11 @@
 {
-    "name": "john-stack",
-    "private": true,
-    "workspaces": [
+  "name": "john-stack",
+  "private": true,
+  "workspaces": [
     "@local/common",
     "@local/graphql",
     "@local/apollo",
     "@local/client",
     "@local/johnapi"
-    ]
+  ]
 }

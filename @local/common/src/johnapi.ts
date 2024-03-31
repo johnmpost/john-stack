@@ -1,6 +1,6 @@
-import { flow, pipe, identity } from "effect";
+import { flow, pipe } from "effect";
 import { S, Ef, O, A } from "../exports";
-import { networkError, noMatchingActionError, parseError } from "./errors";
+import { NetworkError, ParseError, networkError, parseError } from "./errors";
 
 export type ActionSpec<P, P2, R, R2> = {
   params: S.Schema<never, P, P2>;
@@ -15,6 +15,10 @@ export type Action<P, P2, R, R2> = {
   spec: ActionSpec<P, P2, R, R2>;
   handler: (params: P2) => Ef.Effect<never, never, R2>;
 };
+
+export type Invoker = <P, P2, R, R2>(
+  action: ActionSpec<P, P2, R, R2>
+) => (params: P2) => Ef.Effect<never, ParseError | NetworkError, R2>;
 
 const decodeOrParseError = <T, U>(schema: S.Schema<never, T, U>) =>
   flow(
@@ -52,7 +56,7 @@ const post =
     );
 
 export const mkInvoke =
-  (route: string) =>
+  (route: string): Invoker =>
   <P, P2, R, R2>(action: ActionSpec<P, P2, R, R2>) =>
   (params: P2) =>
     post(route)(params)(action.result);
@@ -81,7 +85,5 @@ export const mkRequestHandler =
       A.map(parseParams(requestBody)),
       A.getSomes,
       A.head,
-      Ef.flatMap(([action, params]) => action.handler(params)),
-      Ef.mapError(() => noMatchingActionError),
-      Ef.match({ onFailure: identity, onSuccess: identity })
+      O.map(([action, params]) => action.handler(params))
     );
