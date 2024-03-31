@@ -4,7 +4,7 @@ const config: CodegenConfig = {
   schema: "./src/schema.gql",
   documents: "./src/operations.gql",
   generates: {
-    "./src/graphql-types.gen.ts": {
+    "./src/index.gen.ts": {
       config: {
         useIndexSignature: true,
       },

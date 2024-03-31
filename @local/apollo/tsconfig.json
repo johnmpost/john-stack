@@ -8,9 +8,5 @@
     "strict": true,
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
-  },
-  "references": [
-    { "path": "../common" },
-    { "path": "../graphql" }
-  ]
+  }
 }
