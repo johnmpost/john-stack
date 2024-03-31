@@ -1,11 +1,11 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { listTractors } from "@local/common/actions";
+import { helloWorld } from "@local/common/src/utils";
 import { Resolvers } from "@local/graphql";
 import { readFileSync } from "fs";
 import path from "path";
 
-const test = listTractors;
+console.log(helloWorld);
 
 const schemaPath = path.join(__dirname, "../../graphql/src/schema.gql");
 const typeDefs = readFileSync(schemaPath, "utf8");

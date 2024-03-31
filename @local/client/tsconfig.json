@@ -21,8 +21,6 @@
     "noFallthroughCasesInSwitch": true,
   },
   "references": [
-    { "path": "./tsconfig.node.json" },
-    { "path": "../common" },
-    { "path": "../graphql" }
+    { "path": "./tsconfig.node.json" }
   ]
 }
