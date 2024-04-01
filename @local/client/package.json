@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.8.10",
-    "@local/client": "*",
     "@local/graphql": "*",
     "@local/common": "*",
     "effect": "^2.2.2",
