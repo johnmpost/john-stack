@@ -2,19 +2,20 @@
   "name": "@local/apollo",
   "scripts": {
     "dev": "ts-node-dev --respawn ./src/index.ts",
-    "build": "tsc --build",
+    "build": "esbuild ./src/index.ts --bundle --platform=node --outdir=dist",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
-    "@local/graphql": "*",
-    "@local/common": "*",
     "@apollo/server": "^4.10.0",
+    "@local/common": "*",
+    "@local/graphql": "*",
     "graphql": "^16.8.1",
     "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "esbuild": "^0.20.2"
   }
 }
