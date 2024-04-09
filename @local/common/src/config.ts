@@ -1,8 +1,6 @@
 import { Ef, flow, S } from "./toolbox";
 
-export const parseConfig = <From, To>(
-  configSchema: S.Schema<never, From, To>
-) =>
+export const parseConfig = <From, To>(configSchema: S.Schema<From, To>) =>
   flow(
     S.decodeUnknown(configSchema),
     Ef.mapError((x) => `Error parsing config/env:\n${x.message}`),

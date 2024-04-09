@@ -2,8 +2,9 @@
   "name": "@local/common",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "type": "module",
   "dependencies": {
-    "@effect/schema": "^0.61.1",
-    "effect": "^2.2.2"
+    "@effect/schema": "^0.64.2",
+    "effect": "^2.4.18"
   }
 }

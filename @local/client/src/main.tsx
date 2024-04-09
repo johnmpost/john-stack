@@ -5,7 +5,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { config } from "./config.ts";
 
 const apolloClient = new ApolloClient({
-  uri: config.CLIENT_API_HOSTNAME,
+  uri: config.CLIENT_APOLLO_URL,
   cache: new InMemoryCache(),
 });
 

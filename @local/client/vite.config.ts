@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
-import { client, parseConfig } from "@local/common/src/config";
+import { parseConfig, client } from "@local/common/src/config";
 
 const envPrefix = "CLIENT_";
 const envDir = "../..";
