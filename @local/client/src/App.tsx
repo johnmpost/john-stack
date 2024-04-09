@@ -1,6 +1,6 @@
+import { helloWorld } from "@local/common/src/utils";
 import { useGetUsersQuery } from "@local/graphql";
 import { useState } from "react";
-import { helloWorld } from "@local/common/src/utils";
 
 function App() {
   const [count, setCount] = useState(0);
