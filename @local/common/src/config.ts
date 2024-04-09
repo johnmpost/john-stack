@@ -11,4 +11,7 @@ export const parseConfig = <From, To>(
 
 export const client = S.struct({ CLIENT_API_HOSTNAME: S.string });
 
-export const apollo = S.struct({ PORT: S.NumberFromString });
+export const apollo = S.struct({
+  APOLLO_PORT: S.NumberFromString,
+  API_KEY: S.string,
+});

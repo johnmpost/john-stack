@@ -9,13 +9,14 @@
     "@apollo/server": "^4.10.0",
     "@local/common": "*",
     "@local/graphql": "*",
+    "dotenv": "^16.4.5",
     "graphql": "^16.8.1",
     "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",
+    "esbuild": "^0.20.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3",
-    "esbuild": "^0.20.2"
+    "typescript": "^5.3.3"
   }
 }
