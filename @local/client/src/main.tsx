@@ -2,9 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import { config } from "./config.ts";
 
 const apolloClient = new ApolloClient({
-  uri: "http://localhost:4001",
+  uri: config.CLIENT_API_HOSTNAME,
   cache: new InMemoryCache(),
 });
 

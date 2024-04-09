@@ -9,7 +9,7 @@ export const parseConfig = <From, To>(
     Ef.runSync
   );
 
-export const client = S.struct({ CLIENT_API_HOSTNAME: S.string });
+export const client = S.struct({ CLIENT_APOLLO_URL: S.string });
 
 export const apollo = S.struct({
   APOLLO_PORT: S.NumberFromString,
