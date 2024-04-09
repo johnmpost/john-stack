@@ -1,15 +1,13 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
-import * as S from "@effect/schema/Schema";
-import { client } from "@local/common/src/config";
+import { client, parseConfig } from "@local/common/src/config";
 
 const envPrefix = "CLIENT_";
 const envDir = "../..";
 
 export default (mode: string) => {
   const env = loadEnv(mode, envDir, envPrefix);
-  const test = S.decodeUnknownSync(client)(env);
-  console.log(test);
+  parseConfig(client)(env); // will throw on build if config not correct
 
   return defineConfig({
     plugins: [react()],
