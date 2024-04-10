@@ -3,9 +3,9 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_OPTIONS='--import tsx/esm' vite",
-    "build": "bunx --bun vite build",
+    "build": "NODE_OPTIONS='--import tsx/esm' vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "bunx --bun vite preview"
+    "preview": "NODE_OPTIONS='--import tsx/esm' vite preview"
   },
   "dependencies": {
     "@apollo/client": "^3.8.10",
