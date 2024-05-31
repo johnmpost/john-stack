@@ -1,4 +1,4 @@
-import { flow, pipe, Schema, Ef, O, A } from "./toolbox";
+import { flow, pipe, Schema, Ef, O, A, E } from "./toolbox";
 import { NetworkError, networkError } from "./errors";
 
 export type WebFunctionSpec<Param, EncodedParam, Result, EncodedResult> = {
@@ -8,9 +8,9 @@ export type WebFunctionSpec<Param, EncodedParam, Result, EncodedResult> = {
 
 export type WebFunctionImpl<T> = T extends WebFunctionSpec<
   infer Param,
-  never, // change to unknown?
+  any,
   infer Result,
-  never
+  any
 >
   ? (param: Param) => Result
   : never;
@@ -40,14 +40,14 @@ const postJson = (url: string) => (jsonBody: string) =>
 export const mkInvoke =
   (url: string): Invoker =>
   <Param, EncodedParam, Result, EncodedResult>(
-    webFunction: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
+    webFunctionSpec: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
   ) =>
   (param: Param) =>
     pipe(
       param,
-      Schema.encodeSync(Schema.parseJson(webFunction.param)),
+      Schema.encodeSync(Schema.parseJson(webFunctionSpec.param)),
       postJson(url),
-      Ef.map(Schema.decodeSync(Schema.parseJson(webFunction.result)))
+      Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionSpec.result)))
     );
 
 export const mkWebFunction =
@@ -60,6 +60,14 @@ export const mkWebFunction =
     spec,
     impl,
   });
+
+const myStruct = Schema.TaggedStruct("MyFunction", { name: Schema.String });
+const test = mkWebFunction({
+  param: myStruct,
+  result: Schema.Either({ left: Schema.Number, right: Schema.String }),
+})(param => E.left(5));
+
+const tested = mkInvoke("")(test.spec)(myStruct.make({ name: "" }));
 
 const parseParams =
   (requestBody: string) =>
