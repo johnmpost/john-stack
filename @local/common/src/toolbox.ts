@@ -1,9 +1,11 @@
 export {
   pipe,
   flow,
+  identity as id,
   Either as E,
   Option as O,
-  ReadonlyArray as A,
+  Array as A,
+  String as S,
   Effect as Ef,
 } from "effect";
-export * as S from "@effect/schema/Schema";
+export { Schema } from "@effect/schema";

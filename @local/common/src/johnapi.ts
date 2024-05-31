@@ -1,71 +1,64 @@
-import { flow, pipe } from "effect";
-import { S, Ef, O, A } from "./toolbox";
-import { NetworkError, ParseError, networkError, parseError } from "./errors";
+import { flow, pipe, Schema, Ef, O, A } from "./toolbox";
+import { NetworkError, networkError } from "./errors";
 
-export type ActionSpec<P, P2, R, R2> = {
-  params: S.Schema<never, P, P2>;
-  result: S.Schema<never, R, R2>;
+export type WebFunctionSpec<Param, EncodedParam, Result, EncodedResult> = {
+  param: Schema.Schema<Param, EncodedParam>;
+  result: Schema.Schema<Result, EncodedResult>;
 };
 
-export type ActionHandler<T> = T extends ActionSpec<any, infer P, any, infer R>
-  ? (params: P) => Ef.Effect<never, never, R>
+export type WebFunctionImpl<T> = T extends WebFunctionSpec<
+  infer Param,
+  never, // change to unknown?
+  infer Result,
+  never
+>
+  ? (param: Param) => Result
   : never;
 
-export type Action<P, P2, R, R2> = {
-  spec: ActionSpec<P, P2, R, R2>;
-  handler: (params: P2) => Ef.Effect<never, never, R2>;
+export type WebFunction<Param, EncodedParam, Result, EncodedResult> = {
+  spec: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>;
+  impl: (param: Param) => Result;
 };
 
-export type Invoker = <P, P2, R, R2>(
-  action: ActionSpec<P, P2, R, R2>
-) => (params: P2) => Ef.Effect<never, ParseError | NetworkError, R2>;
+export type Invoker = <Param, EncodedParam, Result, EncodedResult>(
+  webFunction: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
+) => (param: Param) => Ef.Effect<Result, NetworkError>;
 
-const decodeOrParseError = <T, U>(schema: S.Schema<never, T, U>) =>
-  flow(
-    S.decodeEither(schema),
-    Ef.mapError(() => parseError)
-  );
-
-const postAsJson =
-  (route: string) =>
-  <T>(body: T) =>
+const postJson = (url: string) => (jsonBody: string) =>
+  pipe(
     Ef.tryPromise({
       try: () =>
-        fetch(route, {
+        fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }),
+          body: jsonBody,
+        }).then(x => x.text()),
       catch: () => networkError,
-    });
-
-const parseJsonBody = (response: Response) =>
-  Ef.tryPromise({
-    try: () => response.json(),
-    catch: () => parseError,
-  });
-
-const post =
-  (route: string) =>
-  <T>(body: T) =>
-  <U, V>(responseSchema: S.Schema<never, U, V>) =>
-    pipe(
-      postAsJson(route)(body),
-      Ef.flatMap(parseJsonBody),
-      Ef.flatMap(decodeOrParseError(responseSchema))
-    );
+    })
+  );
 
 export const mkInvoke =
-  (route: string): Invoker =>
-  <P, P2, R, R2>(action: ActionSpec<P, P2, R, R2>) =>
-  (params: P2) =>
-    post(route)(params)(action.result);
+  (url: string): Invoker =>
+  <Param, EncodedParam, Result, EncodedResult>(
+    webFunction: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
+  ) =>
+  (param: Param) =>
+    pipe(
+      param,
+      Schema.encodeSync(Schema.parseJson(webFunction.param)),
+      postJson(url),
+      Ef.map(Schema.decodeSync(Schema.parseJson(webFunction.result)))
+    );
 
-export const mkAction =
-  <P, P2, R, R2>(spec: ActionSpec<P, P2, R, R2>) =>
-  (handler: ActionHandler<typeof spec>): Action<P, P2, R, R2> => ({
+export const mkWebFunction =
+  <Param, EncodedParam, Result, EncodedResult>(
+    spec: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
+  ) =>
+  (
+    impl: WebFunctionImpl<typeof spec>
+  ): WebFunction<Param, EncodedParam, Result, EncodedResult> => ({
     spec,
-    handler,
+    impl,
   });
 
 const parseParams =
@@ -75,11 +68,12 @@ const parseParams =
       requestBody,
       S.decodeOption(S.parseJson()),
       O.flatMap(S.decodeUnknownOption(action.spec.params)),
-      O.map((params) => [action, params] as const)
+      O.map(params => [action, params] as const)
     );
 
 export const mkRequestHandler =
-  (actions: Action<any, any, any, any>[]) => (requestBody: string) =>
+  (webFunctions: WebFunction<unknown, unknown, unknown, unknown>[]) =>
+  (requestBodyJson: string) =>
     pipe(
       actions,
       A.map(parseParams(requestBody)),
