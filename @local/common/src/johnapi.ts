@@ -1,28 +1,47 @@
 import { flow, pipe, Schema, Ef, O, A, E } from "./toolbox";
 import { NetworkError, networkError } from "./errors";
+import { LiteralValue } from "@effect/schema/AST";
 
-export type WebFunctionSpec<Param, EncodedParam, Result, EncodedResult> = {
-  param: Schema.Schema<Param, EncodedParam>;
+import type * as Types from "effect/Types";
+import { Struct, tag, TypeLiteral } from "@effect/schema/Schema";
+
+export type WebFunctionSpec<
+  Name extends LiteralValue,
+  Params extends Schema.Struct.Fields,
+  Result,
+  EncodedResult
+> = {
+  params: Schema.TaggedStruct<Name, Params>;
   result: Schema.Schema<Result, EncodedResult>;
 };
 
 export type WebFunctionImpl<T> = T extends WebFunctionSpec<
-  infer Param,
   any,
+  infer Params,
   infer Result,
   any
 >
-  ? (param: Param) => Result
+  ? (params: Params) => Result
   : never;
 
-export type WebFunction<Param, EncodedParam, Result, EncodedResult> = {
-  spec: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>;
-  impl: (param: Param) => Result;
+export type WebFunction<
+  Name extends LiteralValue,
+  Params extends Schema.Struct.Fields,
+  Result,
+  EncodedResult
+> = {
+  spec: WebFunctionSpec<Name, Params, Result, EncodedResult>;
+  impl: (params: Params) => Result;
 };
 
-export type Invoker = <Param, EncodedParam, Result, EncodedResult>(
-  webFunction: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
-) => (param: Param) => Ef.Effect<Result, NetworkError>;
+export type Invoker = <
+  Name extends LiteralValue,
+  Params extends Schema.Struct.Fields,
+  Result,
+  EncodedResult
+>(
+  webFunction: WebFunctionSpec<Name, Params, Result, EncodedResult>
+) => (params: Params) => Ef.Effect<Result, NetworkError>;
 
 const postJson = (url: string) => (jsonBody: string) =>
   pipe(
@@ -37,15 +56,46 @@ const postJson = (url: string) => (jsonBody: string) =>
     })
   );
 
+const User = Schema.TaggedStruct("User", {
+  name: Schema.String,
+  age: Schema.Number,
+});
+type User = typeof User.Type;
+
+const userInstance = User.make({ name: "John", age: 44 });
+
+// type Fields<T> = T extends Schema.TaggedStruct<any, infer F>
+//   ? Schema.Schema.Type<F>
+//   : never;
+
+const make =
+  <Name extends LiteralValue, Fields extends Schema.Struct.Fields>(
+    taggedStruct: Schema.TaggedStruct<Name, Fields>
+  ) =>
+  // (props: Types.Simplify<TypeLiteral.Constructor<Fields, Records>>) =>
+  // (fields: Omit<typeof taggedStruct.Type, "_tag">) =>
+  (fields: Types.Simplify<Struct.Constructor<{ _tag: tag<Name> } & Fields>>) =>
+    taggedStruct.make(fields);
+
+const fields: Omit<typeof User.Type, "_tag"> = { name: "", age: 4 };
+User.make(fields);
+
+const makeTest = make(User)({ name: "", age: 4 });
+
 export const mkInvoke =
   (url: string): Invoker =>
-  <Param, EncodedParam, Result, EncodedResult>(
-    webFunctionSpec: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
+  <
+    Name extends LiteralValue,
+    Params extends Schema.Struct.Fields,
+    Result,
+    EncodedResult
+  >(
+    webFunctionSpec: WebFunctionSpec<Name, Params, Result, EncodedResult>
   ) =>
-  (param: Param) =>
+  (params: Params) =>
     pipe(
-      param,
-      Schema.encodeSync(Schema.parseJson(webFunctionSpec.param)),
+      webFunctionSpec.params.make(params),
+      Schema.encodeSync(Schema.parseJson(webFunctionSpec.params)),
       postJson(url),
       Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionSpec.result)))
     );
@@ -63,7 +113,7 @@ export const mkWebFunction =
 
 const myStruct = Schema.TaggedStruct("MyFunction", { name: Schema.String });
 const test = mkWebFunction({
-  param: myStruct,
+  params: myStruct,
   result: Schema.Either({ left: Schema.Number, right: Schema.String }),
 })(param => E.left(5));
 
