@@ -1,7 +1,6 @@
 import { flow, pipe, Schema, Ef, O, A, E } from "./toolbox";
 import { NetworkError, networkError } from "./errors";
 import { LiteralValue } from "@effect/schema/AST";
-
 import type * as Types from "effect/Types";
 import { Struct, tag, TypeLiteral } from "@effect/schema/Schema";
 
@@ -56,49 +55,79 @@ const postJson = (url: string) => (jsonBody: string) =>
     })
   );
 
-const User = Schema.TaggedStruct("User", {
-  name: Schema.String,
-  age: Schema.Number,
-});
-type User = typeof User.Type;
-
-const userInstance = User.make({ name: "John", age: 44 });
-
-// type Fields<T> = T extends Schema.TaggedStruct<any, infer F>
-//   ? Schema.Schema.Type<F>
-//   : never;
-
 const make =
   <Name extends LiteralValue, Fields extends Schema.Struct.Fields>(
     taggedStruct: Schema.TaggedStruct<Name, Fields>
   ) =>
-  // (props: Types.Simplify<TypeLiteral.Constructor<Fields, Records>>) =>
-  // (fields: Omit<typeof taggedStruct.Type, "_tag">) =>
-  (fields: Types.Simplify<Struct.Constructor<{ _tag: tag<Name> } & Fields>>) =>
+  (fields: Types.Simplify<Struct.Constructor<Fields>>) =>
     taggedStruct.make(fields);
 
-const fields: Omit<typeof User.Type, "_tag"> = { name: "", age: 4 };
-User.make(fields);
-
-const makeTest = make(User)({ name: "", age: 4 });
-
-export const mkInvoke =
-  (url: string): Invoker =>
-  <
-    Name extends LiteralValue,
-    Params extends Schema.Struct.Fields,
-    Result,
-    EncodedResult
-  >(
-    webFunctionSpec: WebFunctionSpec<Name, Params, Result, EncodedResult>
+const invoker =
+  <Name extends LiteralValue, Fields extends Schema.Struct.Fields>(
+    taggedStruct: Schema.TaggedStruct<Name, Fields>
   ) =>
-  (params: Params) =>
-    pipe(
-      webFunctionSpec.params.make(params),
-      Schema.encodeSync(Schema.parseJson(webFunctionSpec.params)),
-      postJson(url),
-      Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionSpec.result)))
-    );
+  (fields: Types.Simplify<Struct.Constructor<Fields>>) => {
+    const value = taggedStruct.make(fields);
+    const encoded = Schema.encodeSync(taggedStruct);
+  };
+
+const mkTaggedStruct = <
+  Name extends LiteralValue,
+  // Fields extends Schema.Struct.Fields
+  Fields extends {
+    readonly [x: string]: Schema.Schema.AnyNoContext;
+  }
+>(
+  name: Name,
+  // fields: {
+  //   readonly [x: string]: Schema.Schema.AnyNoContext;
+  // }
+  fields: Fields
+) => {
+  const mySt = Schema.TaggedStruct(name, fields);
+  // const test = Schema.Struct<{ [x: string]: Schema.Schema.AnyNoContext }>({
+  //   email: Schema.String,
+  //   test: Schema.Number,
+  // });
+  // type Test = Struct.Context<typeof mySt.fields>;
+  // Schema.encodeSync(mySt); // Argument of type 'TaggedStruct<Name, Fields>' is not assignable to parameter of type 'Schema<Simplify<Type<{ _tag: tag<Name>; } & Fields>>, Simplify<Encoded<{ _tag: tag<Name>; } & Fields, []>>, never>'
+  return mySt;
+};
+
+const MyTs = mkTaggedStruct("SignUpUser", {
+  email: Schema.String,
+  password: Schema.String,
+});
+Schema.encodeSync(MyTs);
+
+const SignUpUser = Schema.TaggedStruct("SignUpUser", {
+  email: Schema.String,
+  password: Schema.String,
+});
+
+const test2 = make(SignUpUser)({ email: "john", password: "234" });
+const test3 = Schema.encodeSync(Schema.parseJson(SignUpUser))(test2);
+
+// export const mkInvoke =
+//   (url: string) =>
+//   <
+//     Name extends LiteralValue,
+//     Params extends Schema.Struct.Fields,
+//     Result,
+//     EncodedResult
+//   >(
+//     // webFunctionSpec: WebFunctionSpec<Name, Params, Result, EncodedResult>
+//     paramsSchema: Schema.TaggedStruct<Name, Params>
+//   ) =>
+//   (params: Types.Simplify<Struct.Constructor<Params>>) =>
+//     pipe(
+//       make(paramsSchema)(params),
+//       x => x as Types.Simplify<Type<{ _tag: tag<Name> } & Params>>,
+//       // // webFunctionSpec.params.make(params),
+//       Schema.encodeSync(paramsSchema)
+//       // postJson(url),
+//       // Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionSpec.result)))
+//     );
 
 export const mkWebFunction =
   <Param, EncodedParam, Result, EncodedResult>(
