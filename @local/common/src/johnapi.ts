@@ -3,10 +3,20 @@ import { NetworkError, networkError } from "./errors";
 import { LiteralValue } from "@effect/schema/AST";
 import type * as Types from "effect/Types";
 import { Struct, tag, TypeLiteral } from "@effect/schema/Schema";
+import { AST } from "@effect/schema";
 
-export type WebFunctionSpec<
+type TaggedStructFields = {
+  readonly [x: string]: Schema.Schema.AnyNoContext;
+};
+
+type TaggedStruct<
+  Tag extends AST.LiteralValue,
+  Fields extends TaggedStructFields
+> = Struct<{ _tag: tag<Tag> } & Fields>;
+
+export type WebFunctionDef<
   Name extends LiteralValue,
-  Params extends Schema.Struct.Fields,
+  Params extends TaggedStructFields,
   Result,
   EncodedResult
 > = {
@@ -14,7 +24,7 @@ export type WebFunctionSpec<
   result: Schema.Schema<Result, EncodedResult>;
 };
 
-export type WebFunctionImpl<T> = T extends WebFunctionSpec<
+export type WebFunctionImpl<Def> = Def extends WebFunctionDef<
   any,
   infer Params,
   infer Result,
@@ -25,21 +35,21 @@ export type WebFunctionImpl<T> = T extends WebFunctionSpec<
 
 export type WebFunction<
   Name extends LiteralValue,
-  Params extends Schema.Struct.Fields,
+  Params extends TaggedStructFields,
   Result,
   EncodedResult
 > = {
-  spec: WebFunctionSpec<Name, Params, Result, EncodedResult>;
+  spec: WebFunctionDef<Name, Params, Result, EncodedResult>;
   impl: (params: Params) => Result;
 };
 
 export type Invoker = <
   Name extends LiteralValue,
-  Params extends Schema.Struct.Fields,
+  Params extends TaggedStructFields,
   Result,
   EncodedResult
 >(
-  webFunction: WebFunctionSpec<Name, Params, Result, EncodedResult>
+  webFunction: WebFunctionDef<Name, Params, Result, EncodedResult>
 ) => (params: Params) => Ef.Effect<Result, NetworkError>;
 
 const postJson = (url: string) => (jsonBody: string) =>
@@ -55,83 +65,135 @@ const postJson = (url: string) => (jsonBody: string) =>
     })
   );
 
-const make =
-  <Name extends LiteralValue, Fields extends Schema.Struct.Fields>(
-    taggedStruct: Schema.TaggedStruct<Name, Fields>
-  ) =>
-  (fields: Types.Simplify<Struct.Constructor<Fields>>) =>
-    taggedStruct.make(fields);
+type Constraint<T> = "jingle" extends keyof T ? never : T;
+const func = <T>(param: Constraint<T>) => param.jingle;
+func({ jingle: "pingle" });
 
-const invoker =
-  <Name extends LiteralValue, Fields extends Schema.Struct.Fields>(
-    taggedStruct: Schema.TaggedStruct<Name, Fields>
-  ) =>
-  (fields: Types.Simplify<Struct.Constructor<Fields>>) => {
-    const value = taggedStruct.make(fields);
-    const encoded = Schema.encodeSync(taggedStruct);
-  };
+type NoContext<T> = Schema.Schema.Context<T> extends never ? T : never;
+type NoContextParams<T extends { params: any }> =
+  T["params"] extends Schema.Schema.AnyNoContext ? T : never;
 
+type EnforceAllProperties<T, U> = {
+  [K in keyof T]: T[K] extends U ? T[K] : never;
+};
+
+// const mkTaggedStruct = <
+//   Name extends LiteralValue,
+//   Fields extends EnforceAllProperties<
+// >(
+//   name: Name,
+//   fields: NoContext<Fields>,
+//   toMake: Types.Simplify<
+//     Struct.Constructor<{ _tag: tag<Name> } & NoContext<Fields>>
+//   >
+// ) => {
+//   const mySt = Schema.TaggedStruct(name, fields);
+//   mySt.make(toMake);
+//   Schema.encodeSync(mySt); // Argument of type 'TaggedStruct<Name, Fields>' is not assignable to parameter of type 'Schema<Simplify<Type<{ _tag: tag<Name>; } & Fields>>, Simplify<Encoded<{ _tag: tag<Name>; } & Fields, []>>, never>'
+//   return mySt;
+// };
+
+type Token = Schema.PropertySignature.Token;
+
+type FieldsNoContext = {
+  readonly [x: PropertyKey]:
+    | Schema.Schema.AnyNoContext
+    | Schema.PropertySignature<
+        Token,
+        any,
+        PropertyKey,
+        Token,
+        any,
+        boolean,
+        never
+      >
+    | Schema.PropertySignature<
+        Token,
+        never,
+        PropertyKey,
+        Token,
+        any,
+        boolean,
+        never
+      >
+    | Schema.PropertySignature<
+        Token,
+        any,
+        PropertyKey,
+        Token,
+        never,
+        boolean,
+        never
+      >
+    | Schema.PropertySignature<
+        Token,
+        never,
+        PropertyKey,
+        Token,
+        never,
+        boolean,
+        never
+      >;
+};
 const mkTaggedStruct = <
-  Name extends LiteralValue,
-  // Fields extends Schema.Struct.Fields
-  Fields extends {
-    readonly [x: string]: Schema.Schema.AnyNoContext;
-  }
+  Name extends AST.LiteralValue,
+  Fields extends FieldsNoContext
 >(
   name: Name,
-  // fields: {
-  //   readonly [x: string]: Schema.Schema.AnyNoContext;
-  // }
   fields: Fields
 ) => {
-  const mySt = Schema.TaggedStruct(name, fields);
-  // const test = Schema.Struct<{ [x: string]: Schema.Schema.AnyNoContext }>({
-  //   email: Schema.String,
-  //   test: Schema.Number,
-  // });
-  // type Test = Struct.Context<typeof mySt.fields>;
-  // Schema.encodeSync(mySt); // Argument of type 'TaggedStruct<Name, Fields>' is not assignable to parameter of type 'Schema<Simplify<Type<{ _tag: tag<Name>; } & Fields>>, Simplify<Encoded<{ _tag: tag<Name>; } & Fields, []>>, never>'
-  return mySt;
+  const schema = Schema.TaggedStruct(name, fields);
+  const schema_: Schema.Schema<typeof schema.Type, typeof schema.Encoded> =
+    Schema.TaggedStruct(name, fields) as any;
+  Schema.encodeSync(schema_);
+  return schema_;
 };
 
 const MyTs = mkTaggedStruct("SignUpUser", {
   email: Schema.String,
   password: Schema.String,
 });
-Schema.encodeSync(MyTs);
+
+Schema.encodeSync(MyTs)({ email: "", password: "", _tag: MyTs.Encoded._tag });
+
+type myts = typeof MyTs.Type;
 
 const SignUpUser = Schema.TaggedStruct("SignUpUser", {
   email: Schema.String,
   password: Schema.String,
 });
+type test = Struct.Context<typeof SignUpUser.fields>;
 
 const test2 = make(SignUpUser)({ email: "john", password: "234" });
 const test3 = Schema.encodeSync(Schema.parseJson(SignUpUser))(test2);
 
-// export const mkInvoke =
-//   (url: string) =>
-//   <
-//     Name extends LiteralValue,
-//     Params extends Schema.Struct.Fields,
-//     Result,
-//     EncodedResult
-//   >(
-//     // webFunctionSpec: WebFunctionSpec<Name, Params, Result, EncodedResult>
-//     paramsSchema: Schema.TaggedStruct<Name, Params>
-//   ) =>
-//   (params: Types.Simplify<Struct.Constructor<Params>>) =>
-//     pipe(
-//       make(paramsSchema)(params),
-//       x => x as Types.Simplify<Type<{ _tag: tag<Name> } & Params>>,
-//       // // webFunctionSpec.params.make(params),
-//       Schema.encodeSync(paramsSchema)
-//       // postJson(url),
-//       // Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionSpec.result)))
-//     );
+export const mkInvoke =
+  (url: string) =>
+  <
+    Name extends LiteralValue,
+    Params extends TaggedStructFields,
+    Result,
+    EncodedResult
+  >(
+    webFunction: NoContextParams<
+      WebFunctionDef<Name, Params, Result, EncodedResult>
+    >
+  ) =>
+  // (params: Types.Simplify<Struct.Constructor<TaggedStructFields>>) =>
+  (params: Types.Simplify<Struct.Constructor<{ _tag: tag<Name> } & Params>>) =>
+    // (params: Struct.Encoded<Params>) =>
+    pipe(
+      webFunction.params.make(params),
+      x => x,
+      // // webFunctionSpec.params.make(params),
+      Schema.encodeSync(webFunction.params)
+      // postJson(url),
+      // Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionSpec.result)))
+    );
 
 export const mkWebFunction =
   <Param, EncodedParam, Result, EncodedResult>(
-    spec: WebFunctionSpec<Param, EncodedParam, Result, EncodedResult>
+    spec: WebFunctionDef<Param, EncodedParam, Result, EncodedResult>
   ) =>
   (
     impl: WebFunctionImpl<typeof spec>
