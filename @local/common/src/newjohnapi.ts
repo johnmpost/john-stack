@@ -46,15 +46,35 @@ type FieldsNoContext = {
       >;
 };
 
+type AnyRecordWithoutName = {
+  [x: string]: any;
+  name?: never;
+};
+// type WithoutName<T> = {
+//   [P in keyof T]: P extends "name" ? never | undefined : T[P];
+// };
+type DoesNotHaveName<T> = T extends AnyRecordWithoutName ? T : never;
+const hasName: AnyRecordWithoutName = { name: "" };
+const noName: AnyRecordWithoutName = { last: "" };
+type HasName = DoesNotHaveName<{ name: string }>;
+type NoName = DoesNotHaveName<{ age: string }>;
+
+const testFunc = <T extends Record<string, any>>(x: DoesNotHaveName<T>) =>
+  x.name;
+const res = testFunc({ name: "" });
+
 export type WebFunctionDef<
   Name extends string,
   Params extends Record<string, any>,
   Result,
   EncodedResult
 > = {
-  params: Schema.Schema<{ name: Name } & Params>;
+  params: Schema.Schema<{ name: Name } & DoesNotHaveName<Params>>;
   result: Schema.Schema<Result, EncodedResult>;
 };
+
+const def: WebFunctionDef<"Def", { age: number }, string, string> = null as any;
+const myname = def.params.Encoded.name;
 
 export type WebFunctionImpl<Def> = Def extends WebFunctionDef<
   any,
@@ -110,25 +130,36 @@ const defineWebFunctionParams = <
   return schema_;
 };
 
-type ExcludeName<T extends string> = T extends "name" ? never : T;
+const encodeSync =
+  <
+    Name extends string,
+    Params extends Record<string, any>,
+    Result,
+    EncodedResult
+  >(
+    webFunction: WebFunctionDef<Name, Params, Result, EncodedResult>
+  ) =>
+  (
+    params: Omit<typeof webFunction.params.Type, "name">
+    // params: typeof webFunction.params.Type
+  ) => {
+    const name: Name = webFunction.params.Encoded.name;
+    const props: WithoutName<Params> = params;
+    const toEncode: { name: Name } & Params = { name, ...props };
+    const encoded = Schema.encodeSync(webFunction.params)(toEncode);
+    return encoded;
+  };
 
-const encodeSync = <
-  Name extends string,
-  Params extends Record<string, any>,
-  Result,
-  EncodedResult
->(
-  webFunction: WebFunctionDef<Name, Params, Result, EncodedResult>,
-  params: Omit<typeof webFunction.params.Type, "name">
-  // params: typeof webFunction.params.Type
-) =>
-  Schema.encodeSync(webFunction.params)({
-    ...params,
-    name: webFunction.params.Encoded.name as Name,
-  });
+const invalidObject: AnyRecordWithoutName = {
+  name: "John",
+  age: 30,
+};
 
 const test = defineWebFunctionParams("MyFunc", { user: Schema.String });
 Schema.encodeSync(test)({ user: "john", name: test.Encoded.name });
+const test2 = encodeSync({ params: test, result: Schema.String })({
+  user: "john",
+});
 
 export const mkInvoke =
   (url: string) =>
