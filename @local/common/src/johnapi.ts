@@ -1,4 +1,4 @@
-import { pipe, Schema, Ef, E } from "./toolbox";
+import { pipe, Schema, Ef, E, id } from "./toolbox";
 import { NetworkError, networkError } from "./errors";
 
 export type WebFunctionDef<
@@ -46,7 +46,7 @@ const postJson = (url: string) => (jsonBody: string) =>
   );
 
 export const mkInvoke =
-  (url: string) =>
+  (url: string): Invoker =>
   <Name extends string, Params, Result, EncodedResult>(
     webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>
   ) =>
@@ -56,6 +56,24 @@ export const mkInvoke =
       Schema.encodeSync(Schema.parseJson(webFunctionDef.params)),
       postJson(url),
       Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionDef.result)))
+    );
+
+// IN PROGRESS
+export const withOnError =
+  <Name extends string, Params, Result, EncodedResult>(invoke: Invoker) =>
+  (onNetworkError: () => void) =>
+  (webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>) =>
+  (params: Params) =>
+    pipe(
+      invoke(webFunctionDef)(params),
+      Ef.match({
+        onFailure: () => {
+          onNetworkError();
+          throw "networkError";
+        },
+        onSuccess: id,
+      }),
+      Ef.runSync
     );
 
 export const mkWebFunction =
@@ -92,4 +110,7 @@ const myWebFunction: WebFunctionImpl<typeof MyWebFunction> = ({ hello }) =>
 
 const wf = mkWebFunction(MyWebFunction)(myWebFunction);
 
-const test = mkInvoke("")(MyWebFunction)({ hello: "john" });
+const justEffect = mkInvoke("")(MyWebFunction)({ hello: "john" });
+// one version just returns an Effect
+// one version is curried with an onError function, so it just returns the value in the Effect or throws and runs onError
+// one version accepts onError and onSuccess at the end
