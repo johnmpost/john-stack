@@ -1,4 +1,4 @@
-import { pipe, Schema, Ef, E, id, A, O } from "./toolbox";
+import { pipe, Schema, Ef, id, A, O } from "./toolbox";
 import { NetworkError, networkError } from "./errors";
 
 export type WebFunctionDef<

@@ -1,15 +1,12 @@
-import { Ef, flow, S } from "./toolbox";
+import { Schema } from "@local/libs/src/toolbox";
 
-export const parseConfig = <From, To>(configSchema: S.Schema<From, To>) =>
-  flow(
-    S.decodeUnknown(configSchema),
-    Ef.mapError((x) => `Error parsing config/env:\n${x.message}`),
-    Ef.runSync
-  );
+export const Client = Schema.Struct({ CLIENT_SERVER_URL: Schema.String });
 
-export const client = S.struct({ CLIENT_APOLLO_URL: S.string });
+const PortFromString = Schema.lessThanOrEqualTo(65535)(
+  Schema.compose(Schema.NumberFromString, Schema.Int)
+);
 
-export const apollo = S.struct({
-  APOLLO_PORT: S.NumberFromString,
-  API_KEY: S.string,
+export const Server = Schema.Struct({
+  SERVE_ON_PORT: PortFromString,
+  API_KEY: Schema.String,
 });
