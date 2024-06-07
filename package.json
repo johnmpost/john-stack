@@ -2,7 +2,6 @@
   "name": "john-stack",
   "private": true,
   "workspaces": [
-    "@local/libs",
     "@local/common",
     "@local/client"
   ]

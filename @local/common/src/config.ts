@@ -1,4 +1,4 @@
-import { Schema } from "@local/libs/src/toolbox";
+import { Schema } from "./toolbox";
 
 export const Client = Schema.Struct({ CLIENT_SERVER_URL: Schema.String });
 
