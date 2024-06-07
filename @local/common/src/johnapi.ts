@@ -58,22 +58,25 @@ export const mkInvoke =
       Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionDef.result)))
     );
 
-// IN PROGRESS
-export const withOnError =
-  <Name extends string, Params, Result, EncodedResult>(invoke: Invoker) =>
-  (onNetworkError: () => void) =>
-  (webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>) =>
+export const mkInvokeWithOnError =
+  (url: string) =>
+  (onNetworkError: () => void): Invoker =>
+  <Name extends string, Params, Result, EncodedResult>(
+    webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>
+  ) =>
   (params: Params) =>
     pipe(
-      invoke(webFunctionDef)(params),
+      { _tag: webFunctionDef.params.Type._tag, params },
+      Schema.encodeSync(Schema.parseJson(webFunctionDef.params)),
+      postJson(url),
+      Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionDef.result))),
       Ef.match({
         onFailure: () => {
           onNetworkError();
           throw "networkError";
         },
         onSuccess: id,
-      }),
-      Ef.runSync
+      })
     );
 
 export const mkWebFunction =
@@ -97,20 +100,3 @@ export const mkWebFunctionDef = <
   params: Schema.Struct({ _tag: Schema.Literal(name), params }),
   result,
 });
-
-// test
-const MyWebFunction = mkWebFunctionDef(
-  "MyWebFunction",
-  Schema.Struct({ hello: Schema.String }),
-  Schema.Either({ left: Schema.Number, right: Schema.String })
-);
-
-const myWebFunction: WebFunctionImpl<typeof MyWebFunction> = ({ hello }) =>
-  E.right("not implemented");
-
-const wf = mkWebFunction(MyWebFunction)(myWebFunction);
-
-const justEffect = mkInvoke("")(MyWebFunction)({ hello: "john" });
-// one version just returns an Effect
-// one version is curried with an onError function, so it just returns the value in the Effect or throws and runs onError
-// one version accepts onError and onSuccess at the end
