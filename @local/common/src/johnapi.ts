@@ -1,4 +1,4 @@
-import { pipe, Schema, Ef, E, id } from "./toolbox";
+import { pipe, Schema, Ef, E, id, A, O } from "./toolbox";
 import { NetworkError, networkError } from "./errors";
 
 export type WebFunctionDef<
@@ -100,3 +100,24 @@ export const mkWebFunctionDef = <
   params: Schema.Struct({ _tag: Schema.Literal(name), params }),
   result,
 });
+
+const executeWebFunction =
+  (jsonBody: string) => (webFunction: WebFunction<any, any, any, any>) => {
+    const params = Schema.decodeSync(Schema.parseJson(webFunction.def.params))(
+      jsonBody
+    );
+    const result = webFunction.impl(params);
+    const encodedResult = Schema.encodeSync(
+      Schema.parseJson(webFunction.def.result)
+    )(result);
+    return encodedResult;
+  };
+
+export const mkRequestHandler =
+  (webFunctions: WebFunction<any, any, any, any>[]) => (jsonBody: string) =>
+    pipe(
+      webFunctions,
+      A.findFirst(wf => Schema.is(Schema.parseJson(wf.def.params))(jsonBody)),
+      O.getOrThrowWith(() => "Request body does not match any web function"),
+      executeWebFunction(jsonBody)
+    );
