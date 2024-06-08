@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "format": "prettier --write .",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "tsc": "tsc --noEmit -p ./@local/client; tsc --noEmit -p ./@local/api"
   },
   "dependencies": {
     "@effect/schema": "^0.67.21",
