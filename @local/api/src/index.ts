@@ -1,14 +1,15 @@
+import { mkRequestHandler } from "@local/common/src/johnapi";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { webFunctions } from "./web-functions";
+import { Ef, flow, O } from "@local/common/src/toolbox";
 
-export const handler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
-  const requestBody = JSON.parse(event.body || "{}");
-  // Do some processing and possibly some side effects
-  const responseBody = { message: "Hello from Lambda", input: requestBody };
+const handleRequest = mkRequestHandler(webFunctions);
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(responseBody),
-  };
-};
+export const handler = flow(
+  (event: APIGatewayProxyEvent) => event.body,
+  O.fromNullable,
+  O.getOrElse(() => "{}"),
+  handleRequest,
+  Ef.map(body => ({ statusCode: 200, body } as APIGatewayProxyResult)),
+  Ef.runPromise
+);
