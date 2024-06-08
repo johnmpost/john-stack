@@ -9,6 +9,7 @@
     "@local/common": "*"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.138"
+    "@types/aws-lambda": "^8.10.138",
+    "@types/node": "^20.14.2"
   }
 }
