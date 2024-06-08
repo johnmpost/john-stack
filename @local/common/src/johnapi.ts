@@ -20,12 +20,12 @@ export type WebFunctionImpl<Def> = Def extends WebFunctionDef<
   infer Result,
   any
 >
-  ? (params: Params) => Result
+  ? (params: Params) => Ef.Effect<Result>
   : never;
 
 export type WebFunction<Name extends string, Params, Result, EncodedResult> = {
   def: WebFunctionDef<Name, Params, Result, EncodedResult>;
-  impl: (params: Params) => Result;
+  impl: (params: Params) => Ef.Effect<Result>;
 };
 
 export type Invoker = <Name extends string, Params, Result, EncodedResult>(
@@ -102,16 +102,14 @@ export const mkWebFunctionDef = <
 });
 
 const executeWebFunction =
-  (jsonBody: string) => (webFunction: WebFunction<any, any, any, any>) => {
-    const params = Schema.decodeSync(Schema.parseJson(webFunction.def.params))(
-      jsonBody
+  (jsonBody: string) => (webFunction: WebFunction<any, any, any, any>) =>
+    pipe(
+      Schema.decode(Schema.parseJson(webFunction.def.params))(jsonBody),
+      Ef.orDieWith(() => "Failed to decode params"),
+      webFunction.impl,
+      Schema.encode(Schema.parseJson(webFunction.def.result)),
+      Ef.orDieWith(() => "Failed to encode result")
     );
-    const result = webFunction.impl(params);
-    const encodedResult = Schema.encodeSync(
-      Schema.parseJson(webFunction.def.result)
-    )(result);
-    return encodedResult;
-  };
 
 export const mkRequestHandler =
   (webFunctions: WebFunction<any, any, any, any>[]) => (jsonBody: string) =>

@@ -8,10 +8,8 @@
     "preview": "NODE_OPTIONS='--import tsx/esm' vite preview"
   },
   "dependencies": {
-    "@apollo/client": "^3.8.10",
     "@local/common": "*",
-    "effect": "^2.2.2",
-    "graphql": "^16.8.1",
+    "effect": "^3.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
