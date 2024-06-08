@@ -6,6 +6,9 @@
     "@local/client",
     "@local/api"
   ],
+  "scripts": {
+    "format": "prettier --write ."
+  },
   "dependencies": {
     "@effect/schema": "^0.67.21",
     "effect": "^3.3.0"

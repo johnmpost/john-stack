@@ -6,7 +6,7 @@ import { Todo } from "../types";
 export const GetTodos = mkWebFunctionDef(
   "GetTodos",
   Schema.Struct({}),
-  Schema.Array(Todo)
+  Schema.Array(Todo),
 );
 
 export const getTodos: WebFunctionImpl<typeof GetTodos> = () =>
