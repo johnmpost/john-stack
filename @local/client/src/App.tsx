@@ -1,12 +1,9 @@
 import { useState } from "react";
 import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
-import { signUpUser } from "@local/common/src/api";
 
 function App() {
   const [count, setCount] = useState(0);
-  const { data: _ } = useGetUsersQuery();
-  const testing = signUpUser;
 
   return (
     <>
