@@ -117,8 +117,9 @@ export const mkRequestHandler =
   (webFunctions: WebFunction<any, any, any, any>[]) => (jsonBody: string) =>
     pipe(
       webFunctions,
-      // TODO deal with stupid unknown error
-      A.findFirst(wf => Schema.is(Schema.parseJson(wf.def.params))(jsonBody)),
+      A.findFirst<WebFunction<any, any, any, any>>(wf =>
+        Schema.is(Schema.parseJson(wf.def.params))(jsonBody)
+      ),
       O.getOrThrowWith(() => "Request body did not match any web function"),
       executeWebFunction(jsonBody)
     );
