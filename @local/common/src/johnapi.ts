@@ -5,7 +5,7 @@ export type WebFunctionDef<
   Name extends string,
   Params,
   Result,
-  EncodedResult
+  EncodedResult,
 > = {
   params: Schema.Struct<{
     _tag: Schema.Literal<[Name]>;
@@ -29,7 +29,7 @@ export type WebFunction<Name extends string, Params, Result, EncodedResult> = {
 };
 
 export type Invoker = <Name extends string, Params, Result, EncodedResult>(
-  webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>
+  webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>,
 ) => (params: Params) => Ef.Effect<Result, NetworkError>;
 
 const postJson = (url: string) => (jsonBody: string) =>
@@ -42,27 +42,27 @@ const postJson = (url: string) => (jsonBody: string) =>
           body: jsonBody,
         }).then(x => x.text()),
       catch: () => networkError,
-    })
+    }),
   );
 
 export const mkInvoke =
   (url: string): Invoker =>
   <Name extends string, Params, Result, EncodedResult>(
-    webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>
+    webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>,
   ) =>
   (params: Params) =>
     pipe(
       { _tag: webFunctionDef.params.Type._tag, params },
       Schema.encodeSync(Schema.parseJson(webFunctionDef.params)),
       postJson(url),
-      Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionDef.result)))
+      Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionDef.result))),
     );
 
 export const mkInvokeWithOnError =
   (url: string) =>
   (onNetworkError: () => void): Invoker =>
   <Name extends string, Params, Result, EncodedResult>(
-    webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>
+    webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>,
   ) =>
   (params: Params) =>
     pipe(
@@ -76,28 +76,28 @@ export const mkInvokeWithOnError =
           throw "networkError";
         },
         onSuccess: id,
-      })
+      }),
     );
 
 export const mkWebFunction = <
   Name extends string,
   Params,
   Result,
-  EncodedResult
+  EncodedResult,
 >(
   def: WebFunctionDef<Name, Params, Result, EncodedResult>,
-  impl: WebFunctionImpl<typeof def>
+  impl: WebFunctionImpl<typeof def>,
 ): WebFunction<Name, Params, Result, EncodedResult> => ({ def, impl });
 
 export const mkWebFunctionDef = <
   Name extends string,
   Params,
   Result,
-  EncodedResult
+  EncodedResult,
 >(
   name: Name,
   params: Schema.Schema<Params>,
-  result: Schema.Schema<Result, EncodedResult>
+  result: Schema.Schema<Result, EncodedResult>,
 ): WebFunctionDef<Name, Params, Result, EncodedResult> => ({
   params: Schema.Struct({ _tag: Schema.Literal(name), params }),
   result,
@@ -110,7 +110,7 @@ const executeWebFunction =
       Ef.orDieWith(() => "Failed to decode params"),
       webFunction.impl,
       Schema.encode(Schema.parseJson(webFunction.def.result)),
-      Ef.orDieWith(() => "Failed to encode result")
+      Ef.orDieWith(() => "Failed to encode result"),
     );
 
 export const mkRequestHandler =
@@ -118,8 +118,8 @@ export const mkRequestHandler =
     pipe(
       webFunctions,
       A.findFirst<WebFunction<any, any, any, any>>(wf =>
-        Schema.is(Schema.parseJson(wf.def.params))(jsonBody)
+        Schema.is(Schema.parseJson(wf.def.params))(jsonBody),
       ),
       O.getOrThrowWith(() => "Request body did not match any web function"),
-      executeWebFunction(jsonBody)
+      executeWebFunction(jsonBody),
     );
