@@ -79,13 +79,15 @@ export const mkInvokeWithOnError =
       })
     );
 
-export const mkWebFunction =
-  <Name extends string, Params, Result, EncodedResult>(
-    def: WebFunctionDef<Name, Params, Result, EncodedResult>
-  ) =>
-  (
-    impl: WebFunctionImpl<typeof def>
-  ): WebFunction<Name, Params, Result, EncodedResult> => ({ def, impl });
+export const mkWebFunction = <
+  Name extends string,
+  Params,
+  Result,
+  EncodedResult
+>(
+  def: WebFunctionDef<Name, Params, Result, EncodedResult>,
+  impl: WebFunctionImpl<typeof def>
+): WebFunction<Name, Params, Result, EncodedResult> => ({ def, impl });
 
 export const mkWebFunctionDef = <
   Name extends string,
@@ -116,6 +118,6 @@ export const mkRequestHandler =
     pipe(
       webFunctions,
       A.findFirst(wf => Schema.is(Schema.parseJson(wf.def.params))(jsonBody)),
-      O.getOrThrowWith(() => "Request body does not match any web function"),
+      O.getOrThrowWith(() => "Request body did not match any web function"),
       executeWebFunction(jsonBody)
     );
