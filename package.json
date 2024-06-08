@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "@local/common",
-    "@local/client"
+    "@local/client",
+    "@local/api"
   ]
 }
