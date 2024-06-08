@@ -10,7 +10,7 @@ export const parseConfig = <Config>(configSchema: Schema.Schema<Config>) =>
   flow(
     Schema.decodeUnknown(configSchema),
     Ef.mapError(
-      x => `Error parsing environment into config type:\n${x.message}`
+      x => `Error parsing environment into config type:\n${x.message}`,
     ),
-    Ef.runSync
+    Ef.runSync,
   );

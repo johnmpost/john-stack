@@ -14,14 +14,10 @@ export type WebFunctionDef<
   result: Schema.Schema<Result, EncodedResult>;
 };
 
-export type WebFunctionImpl<Def> = Def extends WebFunctionDef<
-  any,
-  infer Params,
-  infer Result,
-  any
->
-  ? (params: Params) => Ef.Effect<Result>
-  : never;
+export type WebFunctionImpl<Def> =
+  Def extends WebFunctionDef<any, infer Params, infer Result, any>
+    ? (params: Params) => Ef.Effect<Result>
+    : never;
 
 export type WebFunction<Name extends string, Params, Result, EncodedResult> = {
   def: WebFunctionDef<Name, Params, Result, EncodedResult>;

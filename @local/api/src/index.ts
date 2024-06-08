@@ -13,6 +13,6 @@ export const handler = flow(
   O.fromNullable,
   O.getOrElse(() => ""),
   handleRequest,
-  Ef.map(body => ({ statusCode: 200, body } as APIGatewayProxyResult)),
-  Ef.runPromise
+  Ef.map(body => ({ statusCode: 200, body }) as APIGatewayProxyResult),
+  Ef.runPromise,
 );

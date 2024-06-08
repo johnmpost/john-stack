@@ -1,4 +1,5 @@
 {
   "experimentalTernaries": false,
-  "arrowParens": "avoid"
+  "arrowParens": "avoid",
+  "trailingComma": "all"
 }
