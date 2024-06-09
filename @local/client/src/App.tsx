@@ -9,7 +9,7 @@ function App() {
     <>
       <h1>john-stack-client</h1>
       <h3>{helloWorld}</h3>
-      <h3>{config.CLIENT_APOLLO_URL}</h3>
+      <h3>{config.CLIENT_WEB_FUNCTIONS_URL}</h3>
       <div>
         <button onClick={() => setCount(count => count + 1)}>
           count is {count}
