@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
-import { mkUseQuery } from "@local/common/src/johnapi";
-import { GetTodo, GetTodos } from "@local/common/src/operations";
+import { mkUseMutation, mkUseQuery } from "@local/common/src/johnapi";
+import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/operations";
 
 const useQuery = mkUseQuery(config.CLIENT_WEB_FUNCTIONS_URL);
+const useMutation = mkUseMutation(config.CLIENT_WEB_FUNCTIONS_URL);
 
 export const App = () => {
   const [count, setCount] = useState(0);
@@ -12,6 +13,7 @@ export const App = () => {
   const { data: todo, error: err } = useQuery(GetTodo)({ id: "dsiuiuio324" })(
     {},
   );
+  const { mutate: createTodo } = useMutation(CreateTodo)({});
 
   return (
     <>
@@ -21,6 +23,13 @@ export const App = () => {
       <div>
         <button onClick={() => setCount(count => count + 1)}>
           count is {count}
+        </button>
+        <button
+          onClick={() =>
+            createTodo({ id: "543", description: "none", title: "Test Todo" })
+          }
+        >
+          create todo
         </button>
       </div>
       <div>

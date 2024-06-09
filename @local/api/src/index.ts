@@ -3,6 +3,8 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { Ef, flow, O } from "@local/common/src/toolbox";
 import { mkOperation, Operation } from "@local/common/src/johnapi";
 import {
+  createTodo,
+  CreateTodo,
   getTodo,
   GetTodo,
   GetTodos,
@@ -12,6 +14,7 @@ import {
 export const operations = [
   mkOperation(GetTodos, getTodos),
   mkOperation(GetTodo, getTodo),
+  mkOperation(CreateTodo, createTodo),
 ] as Operation<any, any, any, any, any, any>[];
 
 export const handler: (

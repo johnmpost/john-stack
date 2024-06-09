@@ -1,7 +1,7 @@
 import { Schema } from "@effect/schema";
 import { Ef } from "./toolbox";
 import { Todo } from "./types";
-import { OperationImpl, mkQueryDef } from "./johnapi";
+import { OperationImpl, mkMutationDef, mkQueryDef } from "./johnapi";
 import { NotFound } from "./errors";
 
 export const GetTodos = mkQueryDef(
@@ -41,11 +41,9 @@ export const getTodo: OperationImpl<typeof GetTodo> = () =>
     description: "Just one. Gotten via GetTodo.",
   });
 
-// export const CreateTodo = mkWebFunctionDef(
-//   "CreateTodo",
-//   Todo,
-//   Schema.Either({ left: Schema.String, right: Schema.Struct({}) }),
-// );
-
-// export const createTodo: WebFunctionImpl<typeof CreateTodo> = () =>
-//   pipe(Ef.succeed({}), Ef.either);
+export const CreateTodo = mkMutationDef("CreateTodo", Todo, Todo, Schema.Never);
+export const createTodo: OperationImpl<typeof CreateTodo> = ({
+  id,
+  title,
+  description,
+}) => Ef.succeed({ id, title, description });

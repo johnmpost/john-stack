@@ -1,4 +1,4 @@
-import { pipe, Schema, Ef, A, O } from "./toolbox";
+import { pipe, Schema, Ef, A, O, flow } from "./toolbox";
 import { CannotConnectToHost } from "./errors";
 import {
   useMutation,
@@ -140,15 +140,14 @@ export const mkUseMutation =
       EncodedError
     >,
   ) =>
-  (params: Params) =>
   (
     opts: Omit<
-      UseMutationOptions<Success, Error | CannotConnectToHost>,
+      UseMutationOptions<Success, Error | CannotConnectToHost, Params>,
       "mutationFn"
     >,
   ) => {
-    const mutation = pipe(
-      { _tag: mutationDef._tag, params },
+    const mutation = flow(
+      (params: Params) => ({ _tag: mutationDef._tag, params }),
       Schema.encodeSync(Schema.parseJson(mutationDef.params)),
       postJson(url),
       Ef.map(
@@ -163,7 +162,7 @@ export const mkUseMutation =
       ),
       Ef.flatten,
     );
-    return useMutation({ mutationFn: () => Ef.runPromise(mutation), ...opts });
+    return useMutation({ mutationFn: flow(mutation, Ef.runPromise), ...opts });
   };
 
 export const mkOperation = <
@@ -225,6 +224,7 @@ const executeOperation =
   (jsonBody: string) => (operation: Operation<any, any, any, any, any, any>) =>
     pipe(
       Schema.decodeSync(Schema.parseJson(operation.def.params))(jsonBody),
+      body => body.params,
       operation.impl,
       Ef.either,
       Ef.map(
