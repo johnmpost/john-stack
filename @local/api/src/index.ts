@@ -1,6 +1,6 @@
 import { mkRequestHandler } from "@local/common/src/johnapi";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { webFunctions } from "./web-functions";
+import { operations } from "./operations";
 import { Ef, flow, O } from "@local/common/src/toolbox";
 
 export const handler: (
@@ -9,6 +9,6 @@ export const handler: (
   event => event.body,
   O.fromNullable,
   O.getOrElse(() => ""),
-  mkRequestHandler(webFunctions),
+  mkRequestHandler(operations),
   Ef.runPromise,
 );

@@ -38,8 +38,19 @@ export type MutationDef<
   error: Schema.Schema<Error, EncodedError>;
 };
 
-export type Impl<Def> =
-  Def extends QueryDef<
+type OperationDef<
+  Name extends string,
+  Params,
+  Success,
+  EncodedSuccess,
+  Error,
+  EncodedError,
+> =
+  | QueryDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>
+  | MutationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
+
+export type OperationImpl<Def> =
+  Def extends OperationDef<
     any,
     infer Params,
     infer Success,
@@ -49,18 +60,9 @@ export type Impl<Def> =
     infer EncodedError
   >
     ? (params: Params) => Ef.Effect<Success, Error>
-    : Def extends MutationDef<
-          any,
-          infer Params,
-          infer Success,
-          any,
-          infer Error,
-          any
-        >
-      ? (params: Params) => Ef.Effect<Success, Error>
-      : never;
+    : never;
 
-export type WebFunction<
+export type Operation<
   Name extends string,
   Params,
   Success,
@@ -68,9 +70,7 @@ export type WebFunction<
   Error,
   EncodedError,
 > = {
-  def:
-    | QueryDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>
-    | MutationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
+  def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
   impl: (params: Params) => Ef.Effect<Success, Error>;
 };
 
@@ -123,7 +123,7 @@ export const mkUseQuery =
     return useQuery({ queryKey, queryFn: () => Ef.runPromise(query), ...opts });
   };
 
-export const mkWebFunction = <
+export const mkOperation = <
   Name extends string,
   Params,
   Success,
@@ -131,11 +131,9 @@ export const mkWebFunction = <
   Error,
   EncodedError,
 >(
-  def:
-    | QueryDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>
-    | MutationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>,
-  impl: Impl<typeof def>,
-): WebFunction<Name, Params, Success, EncodedSuccess, Error, EncodedError> => ({
+  def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>,
+  impl: OperationImpl<typeof def>,
+): Operation<Name, Params, Success, EncodedSuccess, Error, EncodedError> => ({
   def,
   impl,
 });
@@ -161,19 +159,37 @@ export const mkQueryDef = <
   mkQueryKey,
 });
 
-const executeWebFunction =
-  (jsonBody: string) =>
-  (webFunction: WebFunction<any, any, any, any, any, any>) =>
+export const mkMutationDef = <
+  Name extends string,
+  Params,
+  Success,
+  EncodedSuccess,
+  Error,
+  EncodedError,
+>(
+  name: Name,
+  params: Schema.Schema<Params>,
+  success: Schema.Schema<Success, EncodedSuccess>,
+  error: Schema.Schema<Error, EncodedError>,
+): MutationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError> => ({
+  _tag: name,
+  params: Schema.Struct({ _tag: Schema.Literal(name), params }),
+  success,
+  error,
+});
+
+const executeOperation =
+  (jsonBody: string) => (operation: Operation<any, any, any, any, any, any>) =>
     pipe(
-      Schema.decodeSync(Schema.parseJson(webFunction.def.params))(jsonBody),
-      webFunction.impl,
+      Schema.decodeSync(Schema.parseJson(operation.def.params))(jsonBody),
+      operation.impl,
       Ef.either,
       Ef.map(
         Schema.encodeSync(
           Schema.parseJson(
             Schema.Either({
-              left: webFunction.def.error,
-              right: webFunction.def.success,
+              left: operation.def.error,
+              right: operation.def.success,
             }),
           ),
         ),
@@ -181,15 +197,15 @@ const executeWebFunction =
     );
 
 export const mkRequestHandler =
-  (webFunctions: WebFunction<any, any, any, any, any, any>[]) =>
+  (operation: Operation<any, any, any, any, any, any>[]) =>
   (jsonBody: string) =>
     pipe(
-      webFunctions,
-      A.findFirst<WebFunction<any, any, any, any, any, any>>(wf =>
+      operation,
+      A.findFirst<Operation<any, any, any, any, any, any>>(wf =>
         O.isSome(
           Schema.decodeOption(Schema.parseJson(wf.def.params))(jsonBody),
         ),
       ),
       O.getOrThrowWith(() => "Request body did not match any web function"),
-      executeWebFunction(jsonBody),
+      executeOperation(jsonBody),
     );

@@ -1,7 +1,8 @@
 import { Schema } from "@effect/schema";
 import { Ef } from "./toolbox";
 import { Todo } from "./types";
-import { Impl, mkQueryDef } from "./johnapi";
+import { OperationImpl, mkQueryDef } from "./johnapi";
+import { NotFound } from "./errors";
 
 export const GetTodos = mkQueryDef(
   "GetTodos",
@@ -10,8 +11,7 @@ export const GetTodos = mkQueryDef(
   Schema.Array(Todo),
   Schema.Never,
 );
-
-export const getTodos: Impl<typeof GetTodos> = () =>
+export const getTodos: OperationImpl<typeof GetTodos> = () =>
   Ef.succeed([
     {
       id: "1243kjkj",
@@ -32,10 +32,9 @@ export const GetTodo = mkQueryDef(
   Schema.Struct({ id: Schema.String }),
   ({ id }) => ["todo", id],
   Todo,
-  Schema.String,
+  NotFound,
 );
-
-export const getTodo: Impl<typeof GetTodo> = () =>
+export const getTodo: OperationImpl<typeof GetTodo> = () =>
   Ef.succeed({
     id: "8765",
     title: "Single Todo",

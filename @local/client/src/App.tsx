@@ -2,13 +2,16 @@ import { useState } from "react";
 import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
 import { mkUseQuery } from "@local/common/src/johnapi";
-import { GetTodos } from "@local/common/src/operations";
+import { GetTodo, GetTodos } from "@local/common/src/operations";
 
 const useQuery = mkUseQuery(config.CLIENT_WEB_FUNCTIONS_URL);
 
 export const App = () => {
   const [count, setCount] = useState(0);
   const { data: todos, error } = useQuery(GetTodos)({})({});
+  const { data: todo, error: err } = useQuery(GetTodo)({ id: "dsiuiuio324" })(
+    {},
+  );
 
   return (
     <>
@@ -26,6 +29,7 @@ export const App = () => {
         ) : (
           <div>loading todos...</div>
         )}
+        {todo ? <div>{todo.title}</div> : <div>loading single todo...</div>}
       </div>
     </>
   );

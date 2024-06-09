@@ -5,3 +5,6 @@ export const CannotConnectToHost = Schema.TaggedStruct(
   {},
 );
 export type CannotConnectToHost = typeof CannotConnectToHost.Type;
+
+export const NotFound = Schema.TaggedStruct("NotFound", {});
+export type NotFound = typeof NotFound.Type;
