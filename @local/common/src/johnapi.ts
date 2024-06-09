@@ -1,6 +1,8 @@
 import { pipe, Schema, Ef, A, O } from "./toolbox";
 import { NetworkError, networkError } from "./errors";
 
+type QueryKey = readonly unknown[];
+
 export type WebFunctionDef<
   Name extends string,
   Params,
@@ -8,6 +10,7 @@ export type WebFunctionDef<
   EncodedResult,
 > = {
   name: Name;
+  mkQueryKey: (params: Params) => QueryKey;
   params: Schema.Struct<{
     _tag: Schema.Literal<[Name]>;
     params: Schema.Schema<Params>;
@@ -72,10 +75,12 @@ export const mkWebFunctionDef = <
   EncodedResult,
 >(
   name: Name,
+  mkQueryKey: (params: Params) => QueryKey,
   params: Schema.Schema<Params>,
   result: Schema.Schema<Result, EncodedResult>,
 ): WebFunctionDef<Name, Params, Result, EncodedResult> => ({
   name,
+  mkQueryKey,
   params: Schema.Struct({ _tag: Schema.Literal(name), params }),
   result,
 });

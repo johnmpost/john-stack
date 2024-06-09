@@ -2,8 +2,9 @@ import { useState } from "react";
 import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
 import { useInvoke } from "./InvokeContext";
-import { useEffectQuery } from "./query-utils";
-import { GetTodos } from "@local/common/src/web-functions";
+import { useEffectMutation, useEffectQuery } from "./query-utils";
+import { CreateTodo, GetTodos } from "@local/common/src/web-functions";
+import { QueryKey } from "@tanstack/react-query";
 
 export const App = () => {
   const [count, setCount] = useState(0);
@@ -12,7 +13,14 @@ export const App = () => {
     queryKey: ["todos"],
     queryFn: () => invoke(GetTodos)({}),
   });
-  console.log(todos);
+  const createTodo = useEffectMutation({
+    mutationFn: () =>
+      invoke(CreateTodo)({
+        id: "9u8dfhs",
+        title: "Research Tanstack",
+        description: "I must create better abstractions. I must!",
+      }),
+  });
 
   return (
     <>
