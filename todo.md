@@ -1,4 +1,4 @@
+- context/runtime for effects as a way to provide dependencies to operations
 - client-side routing
-- composable convenience functions for defining common actions (CRUD, etc) as web functions
+- composable convenience functions for defining common actions (CRUD, etc) as operations
 - auth
-- context/runtime for effects as a way to provide dependencies
