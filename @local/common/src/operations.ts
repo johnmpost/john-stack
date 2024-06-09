@@ -1,13 +1,14 @@
 import { Schema } from "@effect/schema";
-import { Ef, pipe } from "./toolbox";
+import { Ef } from "./toolbox";
 import { Todo } from "./types";
 import { Impl, mkQueryDef } from "./johnapi";
 
 export const GetTodos = mkQueryDef(
   "GetTodos",
   Schema.Struct({}),
-  Schema.Array(Todo),
   () => ["todos"],
+  Schema.Array(Todo),
+  Schema.Never,
 );
 
 export const getTodos: Impl<typeof GetTodos> = () =>
@@ -29,19 +30,17 @@ export const getTodos: Impl<typeof GetTodos> = () =>
 export const GetTodo = mkQueryDef(
   "GetTodo",
   Schema.Struct({ id: Schema.String }),
-  Schema.Either({ left: Schema.String, right: Todo }),
   ({ id }) => ["todo", id],
+  Todo,
+  Schema.String,
 );
 
 export const getTodo: Impl<typeof GetTodo> = () =>
-  pipe(
-    Ef.succeed({
-      id: "8765",
-      title: "Single Todo",
-      description: "Just one. Gotten via GetTodo.",
-    }),
-    Ef.either,
-  );
+  Ef.succeed({
+    id: "8765",
+    title: "Single Todo",
+    description: "Just one. Gotten via GetTodo.",
+  });
 
 // export const CreateTodo = mkWebFunctionDef(
 //   "CreateTodo",

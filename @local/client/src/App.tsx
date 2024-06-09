@@ -8,7 +8,7 @@ const useQuery = mkUseQuery(config.CLIENT_WEB_FUNCTIONS_URL);
 
 export const App = () => {
   const [count, setCount] = useState(0);
-  const { data: todos } = useQuery(GetTodos)({})({});
+  const { data: todos, error } = useQuery(GetTodos)({})({});
 
   return (
     <>
