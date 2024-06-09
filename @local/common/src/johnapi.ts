@@ -1,6 +1,11 @@
 import { pipe, Schema, Ef, A, O } from "./toolbox";
 import { CannotConnectToHost } from "./errors";
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 
 type QueryKey = readonly unknown[];
 
@@ -121,6 +126,44 @@ export const mkUseQuery =
     );
     const queryKey = queryDef.mkQueryKey(params);
     return useQuery({ queryKey, queryFn: () => Ef.runPromise(query), ...opts });
+  };
+
+export const mkUseMutation =
+  (url: string) =>
+  <Name extends string, Params, Success, EncodedSuccess, Error, EncodedError>(
+    mutationDef: MutationDef<
+      Name,
+      Params,
+      Success,
+      EncodedSuccess,
+      Error,
+      EncodedError
+    >,
+  ) =>
+  (params: Params) =>
+  (
+    opts: Omit<
+      UseMutationOptions<Success, Error | CannotConnectToHost>,
+      "mutationFn"
+    >,
+  ) => {
+    const mutation = pipe(
+      { _tag: mutationDef._tag, params },
+      Schema.encodeSync(Schema.parseJson(mutationDef.params)),
+      postJson(url),
+      Ef.map(
+        Schema.decodeSync(
+          Schema.parseJson(
+            Schema.Either({
+              left: mutationDef.error,
+              right: mutationDef.success,
+            }),
+          ),
+        ),
+      ),
+      Ef.flatten,
+    );
+    return useMutation({ mutationFn: () => Ef.runPromise(mutation), ...opts });
   };
 
 export const mkOperation = <
