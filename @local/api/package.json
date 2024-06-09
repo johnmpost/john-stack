@@ -1,7 +1,7 @@
 {
   "name": "@local/api",
   "scripts": {
-    "dev": "tsx --watch ./dev-server.ts",
+    "dev": "tsx --env-file=../../.env --watch ./dev-server.ts",
     "build": "esbuild ./src/index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=dist"
   },
   "dependencies": {
