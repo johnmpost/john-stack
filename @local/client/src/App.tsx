@@ -11,8 +11,8 @@ const useMutation = mkUseMutation(config.CLIENT_WEB_FUNCTIONS_URL);
 export const App = () => {
   const [count, setCount] = useState(0);
   const queryClient = useQueryClient();
-  const { data: todos } = useQuery(GetTodos)({})({});
-  const { data: todo } = useQuery(GetTodo)({ id: "dsiuiuio324" })({});
+  const { data: todos } = useQuery(GetTodos)({})();
+  const { data: todo } = useQuery(GetTodo)({ id: "dsiuiuio324" })();
   const { mutate: createTodo } = useMutation(CreateTodo)({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: GetTodos.mkQueryKey({}) }),

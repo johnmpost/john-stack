@@ -5,9 +5,8 @@ import {
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
+  QueryKey,
 } from "@tanstack/react-query";
-
-type QueryKey = readonly unknown[];
 
 type DefinitionParams<Name extends string, Params> = Schema.Struct<{
   _tag: Schema.Literal<[Name]>;
@@ -79,107 +78,6 @@ export type Operation<
   impl: (params: Params) => Ef.Effect<Success, Error>;
 };
 
-const postJson = (url: string) => (jsonBody: string) =>
-  pipe(
-    Ef.tryPromise({
-      try: () =>
-        fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: jsonBody,
-        }).then(x => x.text()),
-      catch: () => CannotConnectToHost.make({}),
-    }),
-  );
-
-export const mkUseQuery =
-  (url: string) =>
-  <Name extends string, Params, Success, EncodedSuccess, Error, EncodedError>(
-    queryDef: QueryDef<
-      Name,
-      Params,
-      Success,
-      EncodedSuccess,
-      Error,
-      EncodedError
-    >,
-  ) =>
-  (params: Params) =>
-  (
-    opts: Omit<
-      UseQueryOptions<Success, Error | CannotConnectToHost>,
-      "queryFn" | "queryKey"
-    >,
-  ) => {
-    const query = pipe(
-      { _tag: queryDef._tag, params },
-      Schema.encodeSync(Schema.parseJson(queryDef.params)),
-      postJson(url),
-      Ef.map(
-        Schema.decodeSync(
-          Schema.parseJson(
-            Schema.Either({ left: queryDef.error, right: queryDef.success }),
-          ),
-        ),
-      ),
-      Ef.flatten,
-    );
-    const queryKey = queryDef.mkQueryKey(params);
-    return useQuery({ queryKey, queryFn: () => Ef.runPromise(query), ...opts });
-  };
-
-export const mkUseMutation =
-  (url: string) =>
-  <Name extends string, Params, Success, EncodedSuccess, Error, EncodedError>(
-    mutationDef: MutationDef<
-      Name,
-      Params,
-      Success,
-      EncodedSuccess,
-      Error,
-      EncodedError
-    >,
-  ) =>
-  (
-    opts: Omit<
-      UseMutationOptions<Success, Error | CannotConnectToHost, Params>,
-      "mutationFn"
-    >,
-  ) => {
-    const mutation = flow(
-      (params: Params) => ({ _tag: mutationDef._tag, params }),
-      Schema.encodeSync(Schema.parseJson(mutationDef.params)),
-      postJson(url),
-      Ef.map(
-        Schema.decodeSync(
-          Schema.parseJson(
-            Schema.Either({
-              left: mutationDef.error,
-              right: mutationDef.success,
-            }),
-          ),
-        ),
-      ),
-      Ef.flatten,
-    );
-    return useMutation({ mutationFn: flow(mutation, Ef.runPromise), ...opts });
-  };
-
-export const mkOperation = <
-  Name extends string,
-  Params,
-  Success,
-  EncodedSuccess,
-  Error,
-  EncodedError,
->(
-  def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>,
-  impl: OperationImpl<typeof def>,
-): Operation<Name, Params, Success, EncodedSuccess, Error, EncodedError> => ({
-  def,
-  impl,
-});
-
 export const mkQueryDef = <
   Name extends string,
   Params,
@@ -219,6 +117,107 @@ export const mkMutationDef = <
   success,
   error,
 });
+
+export const mkOperation = <
+  Name extends string,
+  Params,
+  Success,
+  EncodedSuccess,
+  Error,
+  EncodedError,
+>(
+  def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>,
+  impl: OperationImpl<typeof def>,
+): Operation<Name, Params, Success, EncodedSuccess, Error, EncodedError> => ({
+  def,
+  impl,
+});
+
+const postJson = (url: string) => (jsonBody: string) =>
+  pipe(
+    Ef.tryPromise({
+      try: () =>
+        fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: jsonBody,
+        }).then(x => x.text()),
+      catch: () => CannotConnectToHost.make({}),
+    }),
+  );
+
+export const mkUseQuery =
+  (url: string) =>
+  <Name extends string, Params, Success, EncodedSuccess, Error, EncodedError>(
+    queryDef: QueryDef<
+      Name,
+      Params,
+      Success,
+      EncodedSuccess,
+      Error,
+      EncodedError
+    >,
+  ) =>
+  (params: Params) =>
+  (
+    opts: Omit<
+      UseQueryOptions<Success, Error | CannotConnectToHost>,
+      "queryFn" | "queryKey"
+    > = {},
+  ) => {
+    const query = pipe(
+      { _tag: queryDef._tag, params },
+      Schema.encodeSync(Schema.parseJson(queryDef.params)),
+      postJson(url),
+      Ef.map(
+        Schema.decodeSync(
+          Schema.parseJson(
+            Schema.Either({ left: queryDef.error, right: queryDef.success }),
+          ),
+        ),
+      ),
+      Ef.flatten,
+    );
+    const queryKey = queryDef.mkQueryKey(params);
+    return useQuery({ queryKey, queryFn: () => Ef.runPromise(query), ...opts });
+  };
+
+export const mkUseMutation =
+  (url: string) =>
+  <Name extends string, Params, Success, EncodedSuccess, Error, EncodedError>(
+    mutationDef: MutationDef<
+      Name,
+      Params,
+      Success,
+      EncodedSuccess,
+      Error,
+      EncodedError
+    >,
+  ) =>
+  (
+    opts: Omit<
+      UseMutationOptions<Success, Error | CannotConnectToHost, Params>,
+      "mutationFn"
+    > = {},
+  ) => {
+    const mutation = flow(
+      (params: Params) => ({ _tag: mutationDef._tag, params }),
+      Schema.encodeSync(Schema.parseJson(mutationDef.params)),
+      postJson(url),
+      Ef.map(
+        Schema.decodeSync(
+          Schema.parseJson(
+            Schema.Either({
+              left: mutationDef.error,
+              right: mutationDef.success,
+            }),
+          ),
+        ),
+      ),
+      Ef.flatten,
+    );
+    return useMutation({ mutationFn: flow(mutation, Ef.runPromise), ...opts });
+  };
 
 const executeOperation =
   (jsonBody: string) => (operation: Operation<any, any, any, any, any, any>) =>
