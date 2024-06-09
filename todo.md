@@ -1,0 +1,4 @@
+- client-side routing
+- composable convenience functions for defining common actions (CRUD, etc) as web functions
+- auth
+- composable convenience functions for defining react-query queries for web functions

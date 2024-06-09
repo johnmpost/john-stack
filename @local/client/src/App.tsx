@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
+import { useInvoke } from "./InvokeContext";
+import { useEffectQuery } from "./query-utils";
+import { GetTodos } from "@local/common/src/web-functions";
 
-function App() {
+export const App = () => {
   const [count, setCount] = useState(0);
+  const invoke = useInvoke();
+  const { data: todos } = useEffectQuery({
+    queryKey: ["todos"],
+    queryFn: () => invoke(GetTodos)({}),
+  });
+  console.log(todos);
 
   return (
     <>
@@ -15,8 +24,13 @@ function App() {
           count is {count}
         </button>
       </div>
+      <div>
+        {todos ? (
+          todos.map((todo, i) => <div key={i}>{todo.title}</div>)
+        ) : (
+          <div>loading todos...</div>
+        )}
+      </div>
     </>
   );
-}
-
-export default App;
+};
