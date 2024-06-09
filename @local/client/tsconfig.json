@@ -18,6 +18,6 @@
     "strict": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "../common/src/query-utils.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

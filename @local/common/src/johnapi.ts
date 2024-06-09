@@ -1,36 +1,49 @@
 import { pipe, Schema, Ef, A, O } from "./toolbox";
-import { NetworkError, networkError } from "./errors";
+import { CannotConnectToHost } from "./errors";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 type QueryKey = readonly unknown[];
 
-export type WebFunctionDef<
-  Name extends string,
-  Params,
-  Result,
-  EncodedResult,
-> = {
-  name: Name;
+type DefinitionParams<Name extends string, Params> = Schema.Struct<{
+  _tag: Schema.Literal<[Name]>;
+  params: Schema.Schema<Params>;
+}>;
+
+export type QueryDef<Name extends string, Params, Result, EncodedResult> = {
+  _tag: Name;
+  params: DefinitionParams<Name, Params>;
+  result: Schema.Schema<Result, EncodedResult>;
   mkQueryKey: (params: Params) => QueryKey;
-  params: Schema.Struct<{
-    _tag: Schema.Literal<[Name]>;
-    params: Schema.Schema<Params>;
-  }>;
+};
+
+export type MutationDef<Name extends string, Params, Result, EncodedResult> = {
+  _tag: Name;
+  params: DefinitionParams<Name, Params>;
   result: Schema.Schema<Result, EncodedResult>;
 };
 
-export type WebFunctionImpl<Def> =
-  Def extends WebFunctionDef<any, infer Params, infer Result, any>
+export type Impl<Def> =
+  Def extends QueryDef<any, infer Params, infer Result, any>
     ? (params: Params) => Ef.Effect<Result>
-    : never;
+    : Def extends MutationDef<any, infer Params, infer Result, any>
+      ? (params: Params) => Ef.Effect<Result>
+      : never;
 
 export type WebFunction<Name extends string, Params, Result, EncodedResult> = {
-  def: WebFunctionDef<Name, Params, Result, EncodedResult>;
+  def:
+    | QueryDef<Name, Params, Result, EncodedResult>
+    | MutationDef<Name, Params, Result, EncodedResult>;
   impl: (params: Params) => Ef.Effect<Result>;
 };
 
-export type Invoker = <Name extends string, Params, Result, EncodedResult>(
-  webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>,
-) => (params: Params) => Ef.Effect<Result, NetworkError>;
+// export type InvokeMutation = <
+//   Name extends string,
+//   Params,
+//   Result,
+//   EncodedResult,
+// >(
+//   mutationDef: MutationDef<Name, Params, Result, EncodedResult>,
+// ) => (params: Params) => Ef.Effect<Result, NetworkError>;
 
 const postJson = (url: string) => (jsonBody: string) =>
   pipe(
@@ -41,22 +54,31 @@ const postJson = (url: string) => (jsonBody: string) =>
           headers: { "Content-Type": "application/json" },
           body: jsonBody,
         }).then(x => x.text()),
-      catch: () => networkError,
+      catch: () => CannotConnectToHost.make({}),
     }),
   );
 
-export const mkInvoke =
-  (url: string): Invoker =>
+export const mkUseQuery =
+  (url: string) =>
   <Name extends string, Params, Result, EncodedResult>(
-    webFunctionDef: WebFunctionDef<Name, Params, Result, EncodedResult>,
+    queryDef: QueryDef<Name, Params, Result, EncodedResult>,
   ) =>
   (params: Params) =>
-    pipe(
-      { _tag: webFunctionDef.name, params },
-      Schema.encodeSync(Schema.parseJson(webFunctionDef.params)),
+  (
+    opts: Omit<
+      UseQueryOptions<Result, CannotConnectToHost>,
+      "queryFn" | "queryKey"
+    >,
+  ) => {
+    const query = pipe(
+      { _tag: queryDef._tag, params },
+      Schema.encodeSync(Schema.parseJson(queryDef.params)),
       postJson(url),
-      Ef.map(Schema.decodeSync(Schema.parseJson(webFunctionDef.result))),
+      Ef.map(Schema.decodeSync(Schema.parseJson(queryDef.result))),
     );
+    const queryKey = queryDef.mkQueryKey(params);
+    return useQuery({ queryKey, queryFn: () => Ef.runPromise(query), ...opts });
+  };
 
 export const mkWebFunction = <
   Name extends string,
@@ -64,25 +86,22 @@ export const mkWebFunction = <
   Result,
   EncodedResult,
 >(
-  def: WebFunctionDef<Name, Params, Result, EncodedResult>,
-  impl: WebFunctionImpl<typeof def>,
+  def:
+    | QueryDef<Name, Params, Result, EncodedResult>
+    | MutationDef<Name, Params, Result, EncodedResult>,
+  impl: Impl<typeof def>,
 ): WebFunction<Name, Params, Result, EncodedResult> => ({ def, impl });
 
-export const mkWebFunctionDef = <
-  Name extends string,
-  Params,
-  Result,
-  EncodedResult,
->(
+export const mkQueryDef = <Name extends string, Params, Result, EncodedResult>(
   name: Name,
-  mkQueryKey: (params: Params) => QueryKey,
   params: Schema.Schema<Params>,
   result: Schema.Schema<Result, EncodedResult>,
-): WebFunctionDef<Name, Params, Result, EncodedResult> => ({
-  name,
-  mkQueryKey,
+  mkQueryKey: (params: Params) => QueryKey,
+): QueryDef<Name, Params, Result, EncodedResult> => ({
+  _tag: name,
   params: Schema.Struct({ _tag: Schema.Literal(name), params }),
   result,
+  mkQueryKey,
 });
 
 const executeWebFunction =

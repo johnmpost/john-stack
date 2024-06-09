@@ -1,12 +1,4 @@
 import { mkWebFunction } from "@local/common/src/johnapi";
-import {
-  createTodo,
-  CreateTodo,
-  GetTodos,
-  getTodos,
-} from "@local/common/src/web-functions";
+import { GetTodos, getTodos } from "@local/common/src/operations";
 
-export const webFunctions = [
-  mkWebFunction(GetTodos, getTodos),
-  mkWebFunction(CreateTodo, createTodo),
-];
+export const webFunctions = [mkWebFunction(GetTodos, getTodos)];

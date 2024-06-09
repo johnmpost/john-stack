@@ -1,26 +1,14 @@
 import { useState } from "react";
 import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
-import { useInvoke } from "./InvokeContext";
-import { useEffectMutation, useEffectQuery } from "./query-utils";
-import { CreateTodo, GetTodos } from "@local/common/src/web-functions";
-import { QueryKey } from "@tanstack/react-query";
+import { mkUseQuery } from "@local/common/src/johnapi";
+import { GetTodos } from "@local/common/src/operations";
+
+const useQuery = mkUseQuery(config.CLIENT_WEB_FUNCTIONS_URL);
 
 export const App = () => {
   const [count, setCount] = useState(0);
-  const invoke = useInvoke();
-  const { data: todos } = useEffectQuery({
-    queryKey: ["todos"],
-    queryFn: () => invoke(GetTodos)({}),
-  });
-  const createTodo = useEffectMutation({
-    mutationFn: () =>
-      invoke(CreateTodo)({
-        id: "9u8dfhs",
-        title: "Research Tanstack",
-        description: "I must create better abstractions. I must!",
-      }),
-  });
+  const { data: todos } = useQuery(GetTodos)({})({});
 
   return (
     <>

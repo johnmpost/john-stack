@@ -1,2 +1,7 @@
-export const networkError = { kind: "networkError" as const };
-export type NetworkError = typeof networkError;
+import { Schema } from "@effect/schema";
+
+export const CannotConnectToHost = Schema.TaggedStruct(
+  "CannotConnectToHost",
+  {},
+);
+export type CannotConnectToHost = typeof CannotConnectToHost.Type;
