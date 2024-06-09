@@ -3,17 +3,20 @@ import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
 import { mkUseMutation, mkUseQuery } from "@local/common/src/johnapi";
 import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/operations";
+import { useQueryClient } from "@tanstack/react-query";
 
 const useQuery = mkUseQuery(config.CLIENT_WEB_FUNCTIONS_URL);
 const useMutation = mkUseMutation(config.CLIENT_WEB_FUNCTIONS_URL);
 
 export const App = () => {
   const [count, setCount] = useState(0);
-  const { data: todos, error } = useQuery(GetTodos)({})({});
-  const { data: todo, error: err } = useQuery(GetTodo)({ id: "dsiuiuio324" })(
-    {},
-  );
-  const { mutate: createTodo } = useMutation(CreateTodo)({});
+  const queryClient = useQueryClient();
+  const { data: todos } = useQuery(GetTodos)({})({});
+  const { data: todo } = useQuery(GetTodo)({ id: "dsiuiuio324" })({});
+  const { mutate: createTodo } = useMutation(CreateTodo)({
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: GetTodos.mkQueryKey({}) }),
+  });
 
   return (
     <>
