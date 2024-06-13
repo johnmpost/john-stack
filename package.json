@@ -10,24 +10,26 @@
     "format": "prettier --write .",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "tsc": "tsc --noEmit -p ./@local/client; tsc --noEmit -p ./@local/api",
-    "db:create": "podman create --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=myappdb -p 5432:5432 docker.io/library/postgres:latest",
+    "db:create": "podman create --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=myapp -p 5432:5432 docker.io/library/postgres:latest",
     "db:start": "podman start postgres",
     "db:stop": "podman stop postgres",
     "db:remove": "podman rm postgres"
   },
   "dependencies": {
     "@effect/schema": "^0.67.21",
-    "effect": "^3.3.0",
-    "@tanstack/react-query": "^5.40.1"
+    "@effect/sql": "^0.3.10",
+    "@effect/sql-pg": "^0.3.11",
+    "@tanstack/react-query": "^5.40.1",
+    "effect": "^3.3.0"
   },
   "devDependencies": {
-    "prettier": "3.3.1",
-    "typescript": "^5.4.5",
-    "eslint": "^8.55.0",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "tsx": "^4.7.2"
+    "prettier": "3.3.1",
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.5"
   }
 }

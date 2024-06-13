@@ -1,14 +1,19 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
-import { parseConfig } from "@local/common/src/utils";
-import { Client } from "@local/common/src/config";
+import { Client as ClientConfig } from "@local/common/src/config";
+import { ConfigProvider, Ef, Layer, pipe } from "@local/common/src/toolbox";
 
-const envPrefix = "CLIENT_";
+const envPrefix = "X_";
 const envDir = "../..";
 
 export default (mode: string) => {
-  const env = loadEnv(mode, envDir, envPrefix);
-  parseConfig(Client)(env); // will throw on build if invalid env
+  const envFromFile = loadEnv(mode, envDir, envPrefix);
+  const env = { ...envFromFile, ...process.env };
+  pipe(
+    ClientConfig,
+    Ef.provide(Layer.setConfigProvider(ConfigProvider.fromJson(env))),
+    Ef.runSync,
+  ); // will throw if config not fully provided
 
   return defineConfig({
     plugins: [react()],

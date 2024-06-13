@@ -4,3 +4,4 @@
 - auth
 - database - dev and prod servers
 - error handling with react-query
+- define base paths and stuff

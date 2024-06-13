@@ -5,8 +5,8 @@ import { mkUseMutation, mkUseQuery } from "@local/common/src/johnapi";
 import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/operations";
 import { useQueryClient } from "@tanstack/react-query";
 
-const useQuery = mkUseQuery(config.CLIENT_OPERATIONS_URL);
-const useMutation = mkUseMutation(config.CLIENT_OPERATIONS_URL);
+const useQuery = mkUseQuery(config.X_OPERATIONS_URL);
+const useMutation = mkUseMutation(config.X_OPERATIONS_URL);
 
 export const App = () => {
   const [count, setCount] = useState(0);
@@ -22,7 +22,7 @@ export const App = () => {
     <>
       <h1>john-stack-client</h1>
       <h3>{helloWorld}</h3>
-      <h3>{config.CLIENT_OPERATIONS_URL}</h3>
+      <h3>{config.X_OPERATIONS_URL}</h3>
       <div>
         <button onClick={() => setCount(count => count + 1)}>
           count is {count}

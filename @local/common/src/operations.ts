@@ -3,6 +3,9 @@ import { Ef } from "./toolbox";
 import { Todo } from "./types";
 import { OperationImpl, mkMutationDef, mkQueryDef } from "./johnapi";
 import { NotFound } from "./errors";
+import * as Pg from "@effect/sql-pg";
+import { Config, pipe } from "effect";
+import { Server } from "./config";
 
 export const GetTodos = mkQueryDef(
   "GetTodos",
@@ -47,3 +50,15 @@ export const createTodo: OperationImpl<typeof CreateTodo> = ({
   title,
   description,
 }) => Ef.succeed({ id, title, description });
+
+// const test = Pg.client.layer(
+//   Server.pipe(
+//     Config.map(({ DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD }) => ({
+//       host: DB_HOST,
+//       port: DB_PORT,
+//       database: DB_NAME,
+//       username: DB_USER,
+//       password: DB_PASSWORD,
+//     })),
+//   ),
+// );

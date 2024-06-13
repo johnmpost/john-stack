@@ -7,5 +7,7 @@ export {
   Array as A,
   String as S,
   Effect as Ef,
+  Layer,
+  ConfigProvider,
 } from "effect";
 export { Schema } from "@effect/schema";
