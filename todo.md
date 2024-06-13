@@ -2,3 +2,5 @@
 - client-side routing
 - composable convenience functions for defining common actions (CRUD, etc) as operations
 - auth
+- database - dev and prod servers
+- error handling with react-query
