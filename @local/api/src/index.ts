@@ -10,12 +10,28 @@ import {
   GetTodos,
   getTodos,
 } from "@local/common/src/operations";
+import * as Sql from "@effect/sql";
+import * as Pg from "@effect/sql-pg";
+import { Config } from "effect";
+import { Server } from "@local/common/src/config";
 
-export const operations = [
+const operations = [
   mkOperation(GetTodos, getTodos),
   mkOperation(GetTodo, getTodo),
   mkOperation(CreateTodo, createTodo),
 ] as Operation<any, any, any, any, any, any>[];
+
+const SqlLive = Pg.client.layer(
+  Config.map(({ DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD }) => ({
+    host: DB_HOST,
+    port: DB_PORT,
+    database: DB_NAME,
+    username: DB_USER,
+    password: DB_PASSWORD,
+  }))(Server),
+);
+
+const handleRequest = mkRequestHandler(operations);
 
 export const handler: (
   event: APIGatewayProxyEventV2,
@@ -23,6 +39,6 @@ export const handler: (
   event => event.body,
   O.fromNullable,
   O.getOrElse(() => ""),
-  mkRequestHandler(operations),
+  handleRequest,
   Ef.runPromise,
 );

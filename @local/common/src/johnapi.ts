@@ -63,7 +63,7 @@ export type OperationImpl<Def> =
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     infer EncodedError
   >
-    ? (params: Params) => Ef.Effect<Success, Error>
+    ? (params: Params) => Ef.Effect<Success, Error, any>
     : never;
 
 export type Operation<
@@ -239,10 +239,10 @@ const executeOperation =
     );
 
 export const mkRequestHandler =
-  (operation: Operation<any, any, any, any, any, any>[]) =>
+  (operations: Operation<any, any, any, any, any, any>[]) =>
   (jsonBody: string) =>
     pipe(
-      operation,
+      operations,
       A.findFirst<Operation<any, any, any, any, any, any>>(wf =>
         O.isSome(
           Schema.decodeOption(Schema.parseJson(wf.def.params))(jsonBody),
