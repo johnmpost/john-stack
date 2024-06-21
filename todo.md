@@ -1,7 +1,8 @@
-- context/runtime for effects as a way to provide dependencies to operations
+- refine context/runtime for effects as a way to provide dependencies to operations
 - client-side routing
 - composable convenience functions for defining common actions (CRUD, etc) as operations
 - auth
-- database - dev and prod servers
 - error handling with react-query
 - define base paths and stuff
+- better handle client `exports` - not globals please
+- set up db migrations
