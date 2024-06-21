@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { config } from "./config";
 import { helloWorld } from "@local/common/src/utils";
 import { mkUseMutation, mkUseQuery } from "@local/common/src/johnapi";
 import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/operations";
 import { useQueryClient } from "@tanstack/react-query";
+import { config } from "./main";
 
-const useQuery = mkUseQuery(config.X_OPERATIONS_URL);
-const useMutation = mkUseMutation(config.X_OPERATIONS_URL);
+const useQuery = mkUseQuery(config.restlessServerUrl);
+const useMutation = mkUseMutation(config.restlessServerUrl);
 
 export const App = () => {
   const [count, setCount] = useState(0);
@@ -22,7 +22,7 @@ export const App = () => {
     <>
       <h1>john-stack-client</h1>
       <h3>{helloWorld}</h3>
-      <h3>{config.X_OPERATIONS_URL}</h3>
+      <h3>{config.restlessServerUrl}</h3>
       <div>
         <button onClick={() => setCount(count => count + 1)}>
           count is {count}

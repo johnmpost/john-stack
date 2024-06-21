@@ -1,13 +1,17 @@
 import { Config } from "effect";
+import { prefix as prefix_ } from "./utils";
+
+export const viteEnvPrefix = "X_";
+const prefix = prefix_(viteEnvPrefix);
 
 export const Client = Config.all({
-  X_OPERATIONS_URL: Config.string("X_OPERATIONS_URL"),
+  restlessServerUrl: Config.string(prefix("RESTLESS_SERVER_URL")),
 });
 
 export const Server = Config.all({
-  DB_HOST: Config.string("DB_HOST"),
-  DB_PORT: Config.integer("DB_PORT"),
-  DB_NAME: Config.string("DB_NAME"),
-  DB_USER: Config.string("DB_USER"),
-  DB_PASSWORD: Config.redacted("DB_PASSWORD"),
+  dbHost: Config.string("DB_HOST"),
+  dbPort: Config.integer("DB_PORT"),
+  dbName: Config.string("DB_NAME"),
+  dbUser: Config.string("DB_USER"),
+  dbPassword: Config.redacted("DB_PASSWORD"),
 });
