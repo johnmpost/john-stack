@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { helloWorld } from "@local/common/src/utils";
-import { mkUseMutation, mkUseQuery } from "@local/common/src/johnapi";
 import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/operations";
 import { useQueryClient } from "@tanstack/react-query";
-import { config } from "./main";
-
-const useQuery = mkUseQuery(config.restlessServerUrl);
-const useMutation = mkUseMutation(config.restlessServerUrl);
+import { config, useMutation, useQuery } from "./exports";
 
 export const App = () => {
   const [count, setCount] = useState(0);

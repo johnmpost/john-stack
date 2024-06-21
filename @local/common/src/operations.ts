@@ -4,19 +4,7 @@ import { Todo } from "./types";
 import { OperationImpl, mkMutationDef, mkQueryDef } from "./johnapi";
 import { NotFound } from "./errors";
 import * as Sql from "@effect/sql";
-import * as Pg from "@effect/sql-pg";
-import { Config, pipe } from "effect";
-import { Server } from "./config";
-
-const Db = Pg.client.layer(
-  Config.map(({ DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD }) => ({
-    host: DB_HOST,
-    port: DB_PORT,
-    database: DB_NAME,
-    username: DB_USER,
-    password: DB_PASSWORD,
-  }))(Server),
-);
+import { pipe } from "effect";
 
 export const GetTodos = mkQueryDef(
   "GetTodos",
@@ -25,7 +13,7 @@ export const GetTodos = mkQueryDef(
   Schema.Array(Todo),
   Schema.Never,
 );
-export const getTodos: OperationImpl<typeof GetTodos> = () =>
+export const getTodos: OperationImpl<typeof GetTodos, Sql.client.Client> = () =>
   pipe(
     Sql.client.Client,
     Ef.flatMap(sql => sql<Todo>`SELECT id, title, description FROM todos`),
@@ -39,7 +27,7 @@ export const GetTodo = mkQueryDef(
   Todo,
   NotFound,
 );
-export const getTodo: OperationImpl<typeof GetTodo> = () =>
+export const getTodo: OperationImpl<typeof GetTodo, never> = () =>
   Ef.succeed({
     id: "8765",
     title: "Single Todo",
@@ -47,7 +35,7 @@ export const getTodo: OperationImpl<typeof GetTodo> = () =>
   });
 
 export const CreateTodo = mkMutationDef("CreateTodo", Todo, Todo, Schema.Never);
-export const createTodo: OperationImpl<typeof CreateTodo> = ({
+export const createTodo: OperationImpl<typeof CreateTodo, never> = ({
   id,
   title,
   description,

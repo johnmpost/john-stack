@@ -10,26 +10,27 @@ import {
   GetTodos,
   getTodos,
 } from "@local/common/src/operations";
-import * as Sql from "@effect/sql";
 import * as Pg from "@effect/sql-pg";
+import * as Sql from "@effect/sql";
 import { Config } from "effect";
 import { Server } from "@local/common/src/config";
+
+const SqlLive = Pg.client.layer(
+  Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({
+    host: dbHost,
+    port: dbPort,
+    database: dbName,
+    username: dbUser,
+    password: dbPassword,
+  }))(Server),
+);
 
 const operations = [
   mkOperation(GetTodos, getTodos),
   mkOperation(GetTodo, getTodo),
   mkOperation(CreateTodo, createTodo),
-] as Operation<any, any, any, any, any, any>[];
-
-const SqlLive = Pg.client.layer(
-  Config.map(({ DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD }) => ({
-    host: DB_HOST,
-    port: DB_PORT,
-    database: DB_NAME,
-    username: DB_USER,
-    password: DB_PASSWORD,
-  }))(Server),
-);
+] as Operation<any, any, any, any, any, any, Sql.client.Client>[];
+// TODO somehow infer requirements correctly
 
 const handleRequest = mkRequestHandler(operations);
 
@@ -40,5 +41,6 @@ export const handler: (
   O.fromNullable,
   O.getOrElse(() => ""),
   handleRequest,
+  Ef.provide(SqlLive),
   Ef.runPromise,
 );

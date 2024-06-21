@@ -40,6 +40,7 @@ export type MutationDef<
   params: DefinitionParams<Name, Params>;
   success: Schema.Schema<Success, EncodedSuccess>;
   error: Schema.Schema<Error, EncodedError>;
+  // define query invalidations here
 };
 
 type OperationDef<
@@ -53,7 +54,7 @@ type OperationDef<
   | QueryDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>
   | MutationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
 
-export type OperationImpl<Def> =
+export type OperationImpl<Def, Requirements> =
   Def extends OperationDef<
     any,
     infer Params,
@@ -63,7 +64,7 @@ export type OperationImpl<Def> =
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     infer EncodedError
   >
-    ? (params: Params) => Ef.Effect<Success, Error, any>
+    ? (params: Params) => Ef.Effect<Success, Error, Requirements>
     : never;
 
 export type Operation<
@@ -73,9 +74,10 @@ export type Operation<
   EncodedSuccess,
   Error,
   EncodedError,
+  Requirements,
 > = {
   def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
-  impl: (params: Params) => Ef.Effect<Success, Error>;
+  impl: (params: Params) => Ef.Effect<Success, Error, Requirements>;
 };
 
 export const mkQueryDef = <
@@ -125,10 +127,19 @@ export const mkOperation = <
   EncodedSuccess,
   Error,
   EncodedError,
+  Requirements,
 >(
   def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>,
-  impl: OperationImpl<typeof def>,
-): Operation<Name, Params, Success, EncodedSuccess, Error, EncodedError> => ({
+  impl: OperationImpl<typeof def, Requirements>,
+): Operation<
+  Name,
+  Params,
+  Success,
+  EncodedSuccess,
+  Error,
+  EncodedError,
+  Requirements
+> => ({
   def,
   impl,
 });
@@ -220,7 +231,8 @@ export const mkUseMutation =
   };
 
 const executeOperation =
-  (jsonBody: string) => (operation: Operation<any, any, any, any, any, any>) =>
+  (jsonBody: string) =>
+  <R>(operation: Operation<any, any, any, any, any, any, R>) =>
     pipe(
       Schema.decodeSync(Schema.parseJson(operation.def.params))(jsonBody),
       body => body.params,
@@ -239,11 +251,11 @@ const executeOperation =
     );
 
 export const mkRequestHandler =
-  (operations: Operation<any, any, any, any, any, any>[]) =>
+  <R>(operations: Operation<any, any, any, any, any, any, R>[]) =>
   (jsonBody: string) =>
     pipe(
       operations,
-      A.findFirst<Operation<any, any, any, any, any, any>>(wf =>
+      A.findFirst<Operation<any, any, any, any, any, any, R>>(wf =>
         O.isSome(
           Schema.decodeOption(Schema.parseJson(wf.def.params))(jsonBody),
         ),

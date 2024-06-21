@@ -10,10 +10,12 @@
     "format": "prettier --write .",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "tsc": "tsc --noEmit -p ./@local/client; tsc --noEmit -p ./@local/api",
+    "dev:client": "npm run dev -w @local/client",
+    "dev:api": "npm run dev -w @local/api",
     "db:create": "podman create --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=myapp -p 5432:5432 docker.io/library/postgres:latest",
+    "db:remove": "podman rm postgres",
     "db:start": "podman start postgres",
-    "db:stop": "podman stop postgres",
-    "db:remove": "podman rm postgres"
+    "db:stop": "podman stop postgres"
   },
   "dependencies": {
     "@effect/schema": "^0.67.21",
