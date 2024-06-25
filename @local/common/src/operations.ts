@@ -33,14 +33,12 @@ export const getTodo: OperationImpl<typeof GetTodo, Sql.client.Client> = ({
   pipe(
     Sql.client.Client,
     Ef.flatMap(sql =>
-      Sql.resolver.findById("GetTodoById", {
-        Id: Schema.String,
+      Sql.schema.findOne({
+        Request: Schema.String,
         Result: Todo,
-        ResultId: _ => _.id,
-        execute: ids => sql`SELECT * FROM todos WHERE ${sql.in("id", ids)}`,
-      }),
+        execute: id => sql`SELECT * FROM todos WHERE id = ${id}`,
+      })(id),
     ),
-    Ef.flatMap(x => x.execute(id)),
     Ef.orDie,
     Ef.flatten,
     Ef.mapError(() => NotFound.make({})),
@@ -50,19 +48,42 @@ export const CreateTodo = mkMutationDef("CreateTodo", Todo, Todo, Schema.Never);
 export const createTodo: OperationImpl<
   typeof CreateTodo,
   Sql.client.Client
-> = ({ id, title, description }) =>
+> = todo =>
+  pipe(
+    Sql.client.Client,
+    Ef.flatMap(
+      sql =>
+        Sql.schema.single({
+          Request: Todo,
+          Result: Todo,
+          execute: todo => sql`
+        INSERT INTO todos
+        ${sql.insert(todo)}
+        RETURNING todos.*`,
+        })(todo),
+      // TODO: return error if UUID already exists
+    ),
+    Ef.orDie,
+  );
+
+export const UpdateTodo = mkMutationDef("UpdateTodo", Todo, Todo, NotFound);
+export const updateTodo: OperationImpl<
+  typeof UpdateTodo,
+  Sql.client.Client
+> = todo =>
   pipe(
     Sql.client.Client,
     Ef.flatMap(sql =>
-      Sql.resolver.ordered("InsertTodo", {
+      Sql.schema.single({
         Request: Todo,
         Result: Todo,
-        execute: requests => sql`
-        INSERT INTO todos
-        ${sql.insert(requests)}
+        execute: ({ id, ...rest }) => sql`
+        UPDATE todos SET
+        ${sql.update(rest)}
+        WHERE id = ${id}
         RETURNING todos.*`,
-      }),
+      })(todo),
     ),
-    Ef.flatMap(x => x.execute({ id, title, description })),
     Ef.orDie,
+    Ef.mapError(e => NotFound.make({})),
   );
