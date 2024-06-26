@@ -87,3 +87,29 @@ export const updateTodo: OperationImpl<
     Ef.orDie,
     Ef.mapError(e => NotFound.make({})),
   );
+
+export const DeleteTodo = mkMutationDef(
+  "DeleteTodo",
+  Schema.String,
+  Schema.Void,
+  NotFound,
+);
+export const deleteTodo: OperationImpl<
+  typeof DeleteTodo,
+  Sql.client.Client
+> = id =>
+  pipe(
+    Sql.client.Client,
+    Ef.flatMap(sql =>
+      Sql.schema.single({
+        Request: Schema.String,
+        Result: Todo,
+        execute: id =>
+          sql`
+        DELETE FROM todos
+        WHERE id = ${id}
+        RETURNING todos.*`,
+      })(id),
+    ),
+    Ef.orDie,
+  );

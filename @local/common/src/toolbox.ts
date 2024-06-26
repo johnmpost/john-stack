@@ -11,3 +11,4 @@ export {
   ConfigProvider,
 } from "effect";
 export { Schema } from "@effect/schema";
+export * as Sql from "@effect/sql";
