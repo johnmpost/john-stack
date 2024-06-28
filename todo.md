@@ -4,6 +4,6 @@
 - auth
 - error handling with react-query
 - define base paths and stuff
-- better handle client `exports` - not globals please
+- better handle client `exports` - not globals please, use contexts instead
 - set up db migrations
 - "actions" reactogen stuff

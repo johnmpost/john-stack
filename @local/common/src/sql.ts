@@ -1,59 +1,49 @@
 import { pipe } from "effect";
-import { Ef, Schema, Sql } from "./toolbox";
+import { A, Ef, Schema, Sql } from "./toolbox";
 import { Todo } from "./types";
 
-export const queries = pipe(
-  Ef.Do,
-  Ef.bind("sql", () => Sql.client.Client),
-  Ef.let(
-    "getTodos",
-    ({ sql }) => sql<Todo>`SELECT id, title, description FROM todos`,
-  ),
-  Ef.let("getTodo", ({ sql }) =>
-    Sql.schema.findOne({
-      Request: Schema.String,
-      Result: Todo,
-      execute: id => sql`SELECT * FROM todos WHERE id = ${id}`,
-    }),
-  ),
-  Ef.let(
-    "createTodo",
-    ({ sql }) =>
-      (todo: Todo) =>
-        // Sql.schema.single({
-        //   Request: Todo,
-        //   Result: Todo,
-        // execute: todo =>
-        sql`
-        INSERT INTO todos
-        ${sql.insert(todo)}
-        RETURNING todos.*`,
-
-    // }),
-  ),
-  Ef.let("updateTodo", ({ sql }) =>
-    Sql.schema.single({
-      Request: Todo,
-      Result: Todo,
-      execute: ({ id, ...rest }) => sql`
-        UPDATE todos SET
-        ${sql.update(rest)}
-        WHERE id = ${id}
-        RETURNING todos.*`,
-    }),
-  ),
-  Ef.let("deleteTodo", ({ sql }) =>
-    Sql.schema.single({
-      Request: Schema.String,
-      Result: Todo,
-      execute: id =>
-        sql`
-        DELETE FROM todos
-        WHERE id = ${id}
-        RETURNING todos.*`,
-    }),
-  ),
-  Ef.map(({ sql, ...queries }) => queries),
+export const getTodos = pipe(
+  Sql.client.Client,
+  Ef.flatMap(sql => sql`SELECT * FROM todos`),
+  Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
 );
 
-queries.pipe(Ef.map(x => x.createTodo));
+export const getTodo = (id: string) =>
+  pipe(
+    Sql.client.Client,
+    Ef.flatMap(sql => sql`SELECT * FROM todos WHERE id = ${id}`),
+    Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
+    Ef.flatMap(A.head),
+  );
+
+// TODO handle rejecting unique uuid violation
+export const createTodo = (todo: Todo) =>
+  pipe(
+    Sql.client.Client,
+    Ef.flatMap(
+      sql => sql`INSERT INTO todos ${sql.insert(todo)} RETURNING todos.*`,
+    ),
+    Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
+    Ef.map(a => a[0]),
+  );
+
+export const updateTodo = ({ id, ...rest }: Todo) =>
+  pipe(
+    Sql.client.Client,
+    Ef.flatMap(
+      sql =>
+        sql`UPDATE todos SET ${sql.update(rest)} WHERE id = ${id} RETURNING todos.*`,
+    ),
+    Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
+    Ef.map(a => a[0]),
+  );
+
+export const deleteTodo = (id: string) =>
+  pipe(
+    Sql.client.Client,
+    Ef.flatMap(
+      sql => sql`DELETE FROM todos WHERE id = ${id} RETURNING todos.*`,
+    ),
+    Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
+    Ef.map(a => a[0]),
+  );
