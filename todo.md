@@ -7,3 +7,5 @@
 - better handle client `exports` - not globals please, use contexts instead
 - set up db migrations
 - "actions" reactogen stuff
+- rename johnapi operations to restless actions (actions can still be queries or mutations)
+- decide on a name for `sql.ts`
