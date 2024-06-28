@@ -1,7 +1,10 @@
-import { mkRequestHandler } from "@local/common/src/johnapi";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { Ef, flow, O } from "@local/common/src/toolbox";
-import { mkOperation, Operation } from "@local/common/src/johnapi";
+import {
+  mkOperation,
+  Operation,
+  mkRequestHandler,
+} from "@local/common/src/restless";
 import {
   createTodo,
   CreateTodo,

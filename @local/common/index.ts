@@ -1,5 +1,5 @@
 export * as errors from "./src/errors";
-export * as johnapi from "./src/johnapi";
+export * as restless from "./src/restless";
 export * as utils from "./src/utils";
 export * as toolbox from "./src/toolbox";
 export * as config from "./src/config";

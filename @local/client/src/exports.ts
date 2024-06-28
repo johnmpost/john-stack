@@ -1,4 +1,4 @@
-import { mkUseMutation, mkUseQuery } from "@local/common/src/johnapi";
+import { mkUseMutation, mkUseQuery } from "@local/common/src/restless";
 import { Client as ClientConfig } from "@local/common/src/config";
 import { ConfigProvider, Ef, Layer, pipe } from "@local/common/src/toolbox";
 
