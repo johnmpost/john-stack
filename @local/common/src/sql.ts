@@ -1,5 +1,4 @@
-import { pipe } from "effect";
-import { A, Ef, Schema, Sql } from "./toolbox";
+import { A, Ef, Schema, Sql, pipe } from "./toolbox";
 import { Todo } from "./types";
 
 export const getTodos = pipe(
