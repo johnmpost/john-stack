@@ -15,7 +15,6 @@ export const getTodo = (id: string) =>
     Ef.flatMap(A.head),
   );
 
-// TODO handle rejecting unique uuid violation
 export const createTodo = (todo: Todo) =>
   pipe(
     Sql.client.Client,
@@ -23,7 +22,7 @@ export const createTodo = (todo: Todo) =>
       sql => sql`INSERT INTO todos ${sql.insert(todo)} RETURNING todos.*`,
     ),
     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
-    Ef.map(a => a[0]),
+    Ef.map(A.unsafeGet(0)),
   );
 
 export const updateTodo = ({ id, ...rest }: Todo) =>
@@ -34,7 +33,7 @@ export const updateTodo = ({ id, ...rest }: Todo) =>
         sql`UPDATE todos SET ${sql.update(rest)} WHERE id = ${id} RETURNING todos.*`,
     ),
     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
-    Ef.map(a => a[0]),
+    Ef.map(A.unsafeGet(0)),
   );
 
 export const deleteTodo = (id: string) =>
@@ -44,5 +43,5 @@ export const deleteTodo = (id: string) =>
       sql => sql`DELETE FROM todos WHERE id = ${id} RETURNING todos.*`,
     ),
     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
-    Ef.map(a => a[0]),
+    Ef.flatMap(A.head),
   );

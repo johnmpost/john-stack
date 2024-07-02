@@ -43,7 +43,7 @@ export type MutationDef<
   // define query invalidations here
 };
 
-type OperationDef<
+type ActionDef<
   Name extends string,
   Params,
   Success,
@@ -54,8 +54,8 @@ type OperationDef<
   | QueryDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>
   | MutationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
 
-export type OperationImpl<Def, Requirements> =
-  Def extends OperationDef<
+export type ActionImpl<Def, Requirements> =
+  Def extends ActionDef<
     any,
     infer Params,
     infer Success,
@@ -67,7 +67,7 @@ export type OperationImpl<Def, Requirements> =
     ? (params: Params) => Ef.Effect<Success, Error, Requirements>
     : never;
 
-export type Operation<
+export type Action<
   Name extends string,
   Params,
   Success,
@@ -76,7 +76,7 @@ export type Operation<
   EncodedError,
   Requirements,
 > = {
-  def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
+  def: ActionDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>;
   impl: (params: Params) => Ef.Effect<Success, Error, Requirements>;
 };
 
@@ -120,7 +120,7 @@ export const mkMutationDef = <
   error,
 });
 
-export const mkOperation = <
+export const mkAction = <
   Name extends string,
   Params,
   Success,
@@ -129,9 +129,9 @@ export const mkOperation = <
   EncodedError,
   Requirements,
 >(
-  def: OperationDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>,
-  impl: OperationImpl<typeof def, Requirements>,
-): Operation<
+  def: ActionDef<Name, Params, Success, EncodedSuccess, Error, EncodedError>,
+  impl: ActionImpl<typeof def, Requirements>,
+): Action<
   Name,
   Params,
   Success,
@@ -180,14 +180,13 @@ export const mkUseQuery =
       { _tag: queryDef._tag, params },
       Schema.encodeSync(Schema.parseJson(queryDef.params)),
       postJson(url),
-      Ef.map(
+      Ef.flatMap(
         Schema.decodeSync(
           Schema.parseJson(
             Schema.Either({ left: queryDef.error, right: queryDef.success }),
           ),
         ),
       ),
-      Ef.flatten,
     );
     const queryKey = queryDef.mkQueryKey(params);
     return useQuery({ queryKey, queryFn: () => Ef.runPromise(query), ...opts });
@@ -215,7 +214,7 @@ export const mkUseMutation =
       (params: Params) => ({ _tag: mutationDef._tag, params }),
       Schema.encodeSync(Schema.parseJson(mutationDef.params)),
       postJson(url),
-      Ef.map(
+      Ef.flatMap(
         Schema.decodeSync(
           Schema.parseJson(
             Schema.Either({
@@ -225,25 +224,24 @@ export const mkUseMutation =
           ),
         ),
       ),
-      Ef.flatten,
     );
     return useMutation({ mutationFn: flow(mutation, Ef.runPromise), ...opts });
   };
 
-const executeOperation =
+const executeAction =
   (jsonBody: string) =>
-  <R>(operation: Operation<any, any, any, any, any, any, R>) =>
+  <R>(action: Action<any, any, any, any, any, any, R>) =>
     pipe(
-      Schema.decodeSync(Schema.parseJson(operation.def.params))(jsonBody),
+      Schema.decodeSync(Schema.parseJson(action.def.params))(jsonBody),
       body => body.params,
-      operation.impl,
+      action.impl,
       Ef.either,
       Ef.map(
         Schema.encodeSync(
           Schema.parseJson(
             Schema.Either({
-              left: operation.def.error,
-              right: operation.def.success,
+              left: action.def.error,
+              right: action.def.success,
             }),
           ),
         ),
@@ -251,15 +249,15 @@ const executeOperation =
     );
 
 export const mkRequestHandler =
-  <R>(operations: Operation<any, any, any, any, any, any, R>[]) =>
+  <R>(actions: Action<any, any, any, any, any, any, R>[]) =>
   (jsonBody: string) =>
     pipe(
-      operations,
-      A.findFirst<Operation<any, any, any, any, any, any, R>>(wf =>
+      actions,
+      A.findFirst<Action<any, any, any, any, any, any, R>>(action =>
         O.isSome(
-          Schema.decodeOption(Schema.parseJson(wf.def.params))(jsonBody),
+          Schema.decodeOption(Schema.parseJson(action.def.params))(jsonBody),
         ),
       ),
       O.getOrThrowWith(() => "Request body did not match any web function"),
-      executeOperation(jsonBody),
+      executeAction(jsonBody),
     );

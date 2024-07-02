@@ -1,10 +1,11 @@
 import { Schema } from "@effect/schema";
 import { Ef } from "./toolbox";
 import { Todo } from "./types";
-import { OperationImpl, mkMutationDef, mkQueryDef } from "./restless";
+import { ActionImpl, mkMutationDef, mkQueryDef } from "./restless";
 import { NotFound } from "./errors";
 import * as Sql from "@effect/sql";
 import { pipe } from "effect";
+import { getTodos as _getTodos, getTodo as _getTodo } from "./queries";
 
 export const GetTodos = mkQueryDef(
   "GetTodos",
@@ -13,12 +14,8 @@ export const GetTodos = mkQueryDef(
   Schema.Array(Todo),
   Schema.Never,
 );
-export const getTodos: OperationImpl<typeof GetTodos, Sql.client.Client> = () =>
-  pipe(
-    Sql.client.Client,
-    Ef.flatMap(sql => sql<Todo>`SELECT id, title, description FROM todos`),
-    Ef.orDie,
-  );
+export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = () =>
+  pipe(_getTodos, Ef.orDie);
 
 export const GetTodo = mkQueryDef(
   "GetTodo",
@@ -27,25 +24,18 @@ export const GetTodo = mkQueryDef(
   Todo,
   NotFound,
 );
-export const getTodo: OperationImpl<typeof GetTodo, Sql.client.Client> = ({
+export const getTodo: ActionImpl<typeof GetTodo, Sql.client.Client> = ({
   id,
 }) =>
   pipe(
-    Sql.client.Client,
-    Ef.flatMap(sql =>
-      Sql.schema.findOne({
-        Request: Schema.String,
-        Result: Todo,
-        execute: id => sql`SELECT * FROM todos WHERE id = ${id}`,
-      })(id),
-    ),
+    _getTodo(id),
     Ef.orDie,
-    Ef.flatten,
+    // Ef.flatten,
     Ef.mapError(() => NotFound.make({})),
   );
 
 export const CreateTodo = mkMutationDef("CreateTodo", Todo, Todo, Schema.Never);
-export const createTodo: OperationImpl<
+export const createTodo: ActionImpl<
   typeof CreateTodo,
   Sql.client.Client
 > = todo =>
@@ -67,7 +57,7 @@ export const createTodo: OperationImpl<
   );
 
 export const UpdateTodo = mkMutationDef("UpdateTodo", Todo, Todo, NotFound);
-export const updateTodo: OperationImpl<
+export const updateTodo: ActionImpl<
   typeof UpdateTodo,
   Sql.client.Client
 > = todo =>
@@ -94,7 +84,7 @@ export const DeleteTodo = mkMutationDef(
   Schema.Void,
   NotFound,
 );
-export const deleteTodo: OperationImpl<
+export const deleteTodo: ActionImpl<
   typeof DeleteTodo,
   Sql.client.Client
 > = id =>
