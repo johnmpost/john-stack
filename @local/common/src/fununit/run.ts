@@ -32,6 +32,12 @@ export const discoverAndRun = async (
     tests: [],
   };
   Function(allTestsJs)();
+
   const discoveredTests = (globalThis as any as ExtendedGlobal).fununit.tests;
-  console.log(showResults(discoveredTests.map(evaluateTest)));
+  const results = discoveredTests.map(evaluateTest);
+  const hasFailures = results.some(r => !r.isSuccess);
+
+  console.log(showResults(results));
+  const exitCode = hasFailures ? 1 : 0;
+  process.exitCode = exitCode;
 };
