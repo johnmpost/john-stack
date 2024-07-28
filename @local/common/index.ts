@@ -6,3 +6,5 @@ export * as config from "./src/config";
 export * as actions from "./src/actions";
 export * as types from "./src/types";
 export * as queries from "./src/queries";
+import { tests } from "./src/fununit/define";
+export const fununit = { tests };

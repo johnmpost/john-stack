@@ -1,5 +1,23 @@
 import assert from "assert";
-import { Case, Result, Test } from "./types";
+
+export type Case<I, O> = [string, I, O];
+
+export type Test<I, O> = {
+  id: string[];
+  input: I;
+  expected: O;
+  exec: (x: I) => O;
+};
+
+export type Result<I, O> = {
+  id: string[];
+  input: I;
+  expected: O;
+  actual: O;
+  isSuccess: boolean;
+};
+
+export type ExtendedGlobal = { fununit: { tests: Test<any, any>[] } };
 
 const testFromCase =
   <I, O>(namespace: string[], exec: (x: I) => O) =>
@@ -34,9 +52,6 @@ export const evaluateTest = <I, O>(test: Test<I, O>) => {
   const isSuccess = areDeepStrictEqual(actual, test.expected);
   return { ...test, actual, isSuccess } as Result<I, O>;
 };
-
-// DEFINITION & EVALUATION ^^
-// SHOWING RESULTS vv
 
 const indentLines = (numSpaces: number, s: string) => {
   const spaces = " ".repeat(numSpaces);

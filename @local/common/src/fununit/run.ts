@@ -1,9 +1,11 @@
 import { build } from "esbuild";
 import glob from "tiny-glob";
-import { ExtendedGlobal } from "./types";
-import { evaluateTest, showResultsVerbose } from "./lib";
+import { evaluateTest, ExtendedGlobal, Result } from "./lib";
 
-export const discoverAndRun = async (globPath: string) => {
+export const discoverAndRun = async (
+  globPath: string,
+  showResults: (results: Result<any, any>[]) => string,
+) => {
   const files = await glob(globPath);
   const allTestsTs = files.map(f => `import './${f}'`).join(";\n");
 
@@ -13,9 +15,7 @@ export const discoverAndRun = async (globPath: string) => {
       loader: "ts",
       resolveDir: ".",
     },
-    // outdir: 'not_a_real_directory',
     bundle: true,
-    // splitting: false,
     treeShaking: true,
     platform: "node",
     target: "node20",
@@ -33,8 +33,5 @@ export const discoverAndRun = async (globPath: string) => {
   };
   Function(allTestsJs)();
   const discoveredTests = (globalThis as any as ExtendedGlobal).fununit.tests;
-  console.log(showResultsVerbose(discoveredTests.map(evaluateTest)));
+  console.log(showResults(discoveredTests.map(evaluateTest)));
 };
-
-const [, , globPath] = process.argv;
-discoverAndRun(globPath);
