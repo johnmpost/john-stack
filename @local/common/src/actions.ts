@@ -1,10 +1,10 @@
 import { Schema } from "@effect/schema";
-import { Ef } from "./toolbox";
+import { Ef, M } from "./toolbox";
 import { Todo } from "./types";
 import { ActionImpl, mkMutationDef, mkQueryDef } from "./restless";
 import { NotFound } from "./errors";
 import * as Sql from "@effect/sql";
-import { pipe } from "effect";
+import { flow, pipe } from "effect";
 import { getTodos as _getTodos, getTodo as _getTodo } from "./queries";
 
 export const GetTodos = mkQueryDef(
@@ -16,6 +16,10 @@ export const GetTodos = mkQueryDef(
 );
 export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = () =>
   pipe(_getTodos, Ef.orDie);
+
+const flatDie = <T>(e: T) => {
+  throw e;
+};
 
 export const GetTodo = mkQueryDef(
   "GetTodo",
@@ -29,9 +33,18 @@ export const getTodo: ActionImpl<typeof GetTodo, Sql.client.Client> = ({
 }) =>
   pipe(
     _getTodo(id),
-    Ef.orDie,
-    // Ef.flatten,
-    Ef.mapError(() => NotFound.make({})),
+    Ef.mapError(
+      flow(
+        M.value,
+        M.tag("NoSuchElementException", () => NotFound.make({})),
+        M.orElse(flatDie),
+      ),
+      // M.valueTags({
+      //   NoSuchElementException: () => NotFound.make({}),
+      //   ParseError: flatDie,
+      //   SqlError: flatDie,
+      // }),
+    ),
   );
 
 export const CreateTodo = mkMutationDef("CreateTodo", Todo, Todo, Schema.Never);

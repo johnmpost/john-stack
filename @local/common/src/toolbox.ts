@@ -7,6 +7,7 @@ export {
   Array as A,
   String as S,
   Effect as Ef,
+  Match as M,
   Layer,
   ConfigProvider,
 } from "effect";
