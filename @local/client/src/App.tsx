@@ -3,7 +3,7 @@ import { helloWorld } from "@local/common/src/utils";
 import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/actions";
 import { useQueryClient } from "@tanstack/react-query";
 import { config, useMutation, useQuery } from "./exports";
-import { v4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 export const App = () => {
   const [count, setCount] = useState(0);
@@ -28,7 +28,11 @@ export const App = () => {
         </button>
         <button
           onClick={() =>
-            createTodo({ id: v4(), description: "none", title: "Test Todo" })
+            createTodo({
+              id: uuidv4(),
+              description: "none",
+              title: "Test Todo",
+            })
           }
         >
           create todo
