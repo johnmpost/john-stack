@@ -45,7 +45,7 @@ export const handler: (
   O.getOrElse(() => ""),
   handleRequest,
   Ef.provide(SqlLive),
-  Ef.catchAllDefect(Ef.fail),
+  Ef.catchAllDefect(e => (console.log(e), Ef.fail({ error: "defect" }))),
   Ef.match({ onFailure: lambdaFailure, onSuccess: lambdaSuccess }),
   Ef.runPromise,
 );

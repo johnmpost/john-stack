@@ -10,7 +10,7 @@ export const App = () => {
   const queryClient = useQueryClient();
   const { data: todos } = useQuery(GetTodos)({})();
   const { data: todo } = useQuery(GetTodo)({
-    id: "jingle",
+    id: "1-1-1-1",
   })();
   const { mutate: createTodo } = useMutation(CreateTodo)({
     onSuccess: () =>
@@ -44,7 +44,7 @@ export const App = () => {
         ) : (
           <div>loading todos...</div>
         )}
-        {/* {todo ? <div>{todo.title}</div> : <div>loading single todo...</div>} */}
+        {todo ? <div>{todo.title}</div> : <div>loading single todo...</div>}
       </div>
     </>
   );

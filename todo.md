@@ -1,4 +1,4 @@
-- refine context/runtime for effects as a way to provide dependencies to operations
+- refine type safety and organization around api index.ts
 - client-side routing
 - composable convenience functions for defining common actions (CRUD, etc) as operations
 - auth
@@ -8,3 +8,4 @@
 - set up db migrations
 - "actions" reactogen stuff
 - define query invalidations on the restless mutation definitions?
+- better logging
