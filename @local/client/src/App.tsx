@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { helloWorld } from "@local/common/src/utils";
-import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/operations";
+import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/actions";
 import { useQueryClient } from "@tanstack/react-query";
 import { config, useMutation, useQuery } from "./exports";
+import { v4 } from "uuid";
 
 export const App = () => {
   const [count, setCount] = useState(0);
   const queryClient = useQueryClient();
   const { data: todos } = useQuery(GetTodos)({})();
-  const { data: todo } = useQuery(GetTodo)({ id: "dsiuiuio324" })();
+  const { data: todo } = useQuery(GetTodo)({
+    id: "jingle",
+  })();
   const { mutate: createTodo } = useMutation(CreateTodo)({
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: GetTodos.mkQueryKey({}) }),
@@ -25,7 +28,7 @@ export const App = () => {
         </button>
         <button
           onClick={() =>
-            createTodo({ id: "543", description: "none", title: "Test Todo" })
+            createTodo({ id: v4(), description: "none", title: "Test Todo" })
           }
         >
           create todo
@@ -37,7 +40,7 @@ export const App = () => {
         ) : (
           <div>loading todos...</div>
         )}
-        {todo ? <div>{todo.title}</div> : <div>loading single todo...</div>}
+        {/* {todo ? <div>{todo.title}</div> : <div>loading single todo...</div>} */}
       </div>
     </>
   );

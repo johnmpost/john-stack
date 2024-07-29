@@ -1,5 +1,5 @@
 import { pipe, Schema, Ef, A, O, flow } from "./toolbox";
-import { CannotConnectToHost } from "./errors";
+import { UnreachableHost } from "./errors";
 import {
   useMutation,
   UseMutationOptions,
@@ -153,7 +153,7 @@ const postJson = (url: string) => (jsonBody: string) =>
           headers: { "Content-Type": "application/json" },
           body: jsonBody,
         }).then(x => x.text()),
-      catch: () => CannotConnectToHost.make({}),
+      catch: () => UnreachableHost.make({}),
     }),
   );
 
@@ -172,7 +172,7 @@ export const mkUseQuery =
   (params: Params) =>
   (
     opts: Omit<
-      UseQueryOptions<Success, Error | CannotConnectToHost>,
+      UseQueryOptions<Success, Error | UnreachableHost>,
       "queryFn" | "queryKey"
     > = {},
   ) => {
@@ -206,7 +206,7 @@ export const mkUseMutation =
   ) =>
   (
     opts: Omit<
-      UseMutationOptions<Success, Error | CannotConnectToHost, Params>,
+      UseMutationOptions<Success, Error | UnreachableHost, Params>,
       "mutationFn"
     > = {},
   ) => {

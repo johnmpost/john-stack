@@ -1,10 +1,7 @@
 import { Schema } from "@effect/schema";
 
-export const CannotConnectToHost = Schema.TaggedStruct(
-  "CannotConnectToHost",
-  {},
-);
-export type CannotConnectToHost = typeof CannotConnectToHost.Type;
+export const UnreachableHost = Schema.TaggedStruct("CannotConnectToHost", {});
+export type UnreachableHost = typeof UnreachableHost.Type;
 
 export const NotFound = Schema.TaggedStruct("NotFound", {});
 export type NotFound = typeof NotFound.Type;

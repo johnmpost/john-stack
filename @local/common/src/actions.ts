@@ -4,22 +4,32 @@ import { Todo } from "./types";
 import { ActionImpl, mkMutationDef, mkQueryDef } from "./restless";
 import { NotFound } from "./errors";
 import * as Sql from "@effect/sql";
-import { flow, pipe } from "effect";
-import { getTodos as _getTodos, getTodo as _getTodo } from "./queries";
+import { pipe } from "effect";
+import {
+  getTodos as _getTodos,
+  getTodo as _getTodo,
+  createTodo as _createTodo,
+  updateTodo as _updateTodo,
+  deleteTodo as _deleteTodo,
+} from "./queries";
+
+const NoInput = Schema.Struct({});
+
+const flatDie = <T>(e: T) => {
+  throw e;
+};
+
+const killDefects = { SqlError: flatDie, ParseError: flatDie };
 
 export const GetTodos = mkQueryDef(
   "GetTodos",
-  Schema.Struct({}),
+  NoInput,
   () => ["todos"],
   Schema.Array(Todo),
   Schema.Never,
 );
 export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = () =>
-  pipe(_getTodos, Ef.orDie);
-
-const flatDie = <T>(e: T) => {
-  throw e;
-};
+  pipe(_getTodos, Ef.mapError(M.valueTags(killDefects)));
 
 export const GetTodo = mkQueryDef(
   "GetTodo",
@@ -34,16 +44,10 @@ export const getTodo: ActionImpl<typeof GetTodo, Sql.client.Client> = ({
   pipe(
     _getTodo(id),
     Ef.mapError(
-      flow(
-        M.value,
-        M.tag("NoSuchElementException", () => NotFound.make({})),
-        M.orElse(flatDie),
-      ),
-      // M.valueTags({
-      //   NoSuchElementException: () => NotFound.make({}),
-      //   ParseError: flatDie,
-      //   SqlError: flatDie,
-      // }),
+      M.valueTags({
+        ...killDefects,
+        NoSuchElementException: () => NotFound.make({}),
+      }),
     ),
   );
 
@@ -51,23 +55,7 @@ export const CreateTodo = mkMutationDef("CreateTodo", Todo, Todo, Schema.Never);
 export const createTodo: ActionImpl<
   typeof CreateTodo,
   Sql.client.Client
-> = todo =>
-  pipe(
-    Sql.client.Client,
-    Ef.flatMap(
-      sql =>
-        Sql.schema.single({
-          Request: Todo,
-          Result: Todo,
-          execute: todo => sql`
-        INSERT INTO todos
-        ${sql.insert(todo)}
-        RETURNING todos.*`,
-        })(todo),
-      // TODO: return error if UUID already exists
-    ),
-    Ef.orDie,
-  );
+> = todo => pipe(_createTodo(todo), Ef.mapError(M.valueTags(killDefects)));
 
 export const UpdateTodo = mkMutationDef("UpdateTodo", Todo, Todo, NotFound);
 export const updateTodo: ActionImpl<
@@ -75,20 +63,13 @@ export const updateTodo: ActionImpl<
   Sql.client.Client
 > = todo =>
   pipe(
-    Sql.client.Client,
-    Ef.flatMap(sql =>
-      Sql.schema.single({
-        Request: Todo,
-        Result: Todo,
-        execute: ({ id, ...rest }) => sql`
-        UPDATE todos SET
-        ${sql.update(rest)}
-        WHERE id = ${id}
-        RETURNING todos.*`,
-      })(todo),
+    _updateTodo(todo),
+    Ef.mapError(
+      M.valueTags({
+        ...killDefects,
+        NoSuchElementException: () => NotFound.make({}),
+      }),
     ),
-    Ef.orDie,
-    Ef.mapError(e => NotFound.make({})),
   );
 
 export const DeleteTodo = mkMutationDef(
@@ -102,17 +83,11 @@ export const deleteTodo: ActionImpl<
   Sql.client.Client
 > = id =>
   pipe(
-    Sql.client.Client,
-    Ef.flatMap(sql =>
-      Sql.schema.single({
-        Request: Schema.String,
-        Result: Todo,
-        execute: id =>
-          sql`
-        DELETE FROM todos
-        WHERE id = ${id}
-        RETURNING todos.*`,
-      })(id),
+    _deleteTodo(id),
+    Ef.mapError(
+      M.valueTags({
+        ...killDefects,
+        NoSuchElementException: () => NotFound.make({}),
+      }),
     ),
-    Ef.orDie,
   );

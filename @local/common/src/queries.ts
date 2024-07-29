@@ -33,7 +33,7 @@ export const updateTodo = ({ id, ...rest }: Todo) =>
         sql`UPDATE todos SET ${sql.update(rest)} WHERE id = ${id} RETURNING todos.*`,
     ),
     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
-    Ef.map(A.unsafeGet(0)),
+    Ef.flatMap(A.head),
   );
 
 export const deleteTodo = (id: string) =>
