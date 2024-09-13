@@ -1,8 +1,8 @@
-import { discoverAndRun } from "../fununit/run";
+import { discoverAndRun } from "../libs/fununit/run";
 import {
   showResults as showResultsSuccinct,
   showResultsVerbose,
-} from "../fununit/lib";
+} from "../libs/fununit/lib";
 
 const [, , globPath, ...rest] = process.argv;
 const isVerbose = rest.includes("v");

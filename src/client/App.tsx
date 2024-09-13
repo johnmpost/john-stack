@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { helloWorld } from "@local/common/src/utils";
-import { CreateTodo, GetTodo, GetTodos } from "@local/common/src/actions";
 import { useQueryClient } from "@tanstack/react-query";
-import { config, useMutation, useQuery } from "./exports";
 import { v4 as uuidv4 } from "uuid";
+import { helloWorld } from "../common/utils";
+import { CreateTodo, GetTodo, GetTodos } from "../common/actions";
+import { config, useMutation, useQuery } from "./exports";
 
 export const App = () => {
   const [count, setCount] = useState(0);

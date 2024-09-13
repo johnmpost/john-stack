@@ -1,5 +1,3 @@
-import { pipe, Schema, Ef, A, O, flow } from "./toolbox";
-import { UnreachableHost } from "./errors";
 import {
   useMutation,
   UseMutationOptions,
@@ -7,6 +5,8 @@ import {
   UseQueryOptions,
   QueryKey,
 } from "@tanstack/react-query";
+import { A, Ef, flow, O, pipe, Schema } from "../src/common/toolbox";
+import { UnreachableHost } from "../src/common/errors";
 
 type DefinitionParams<Name extends string, Params> = Schema.Struct<{
   _tag: Schema.Literal<[Name]>;

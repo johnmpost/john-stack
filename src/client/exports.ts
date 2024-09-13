@@ -1,6 +1,7 @@
-import { mkUseMutation, mkUseQuery } from "@local/common/src/restless";
-import { Client as ClientConfig } from "@local/common/src/config";
-import { ConfigProvider, Ef, Layer, pipe } from "@local/common/src/toolbox";
+import { ConfigProvider } from "effect";
+import { Ef, Layer, pipe } from "../common/toolbox";
+import { Client as ClientConfig } from "../common/config";
+import { mkUseMutation, mkUseQuery } from "../../libs/restless";
 
 export const config = pipe(
   ClientConfig,

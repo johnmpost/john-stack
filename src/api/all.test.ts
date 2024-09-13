@@ -1,4 +1,4 @@
-import { tests } from "@local/common/src/fununit/define";
+import { tests } from "../../libs/fununit/define";
 import { multiply } from "./utils";
 
 tests(

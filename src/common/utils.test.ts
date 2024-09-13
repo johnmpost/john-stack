@@ -1,4 +1,4 @@
-import { tests } from "./fununit/define";
+import { tests } from "../../libs/fununit/define";
 import { prefix } from "./utils";
 
 tests(

@@ -1,19 +1,17 @@
 {
   "name": "john-stack",
   "private": true,
-  "workspaces": [
-    "@local/common",
-    "@local/client",
-    "@local/api"
-  ],
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "tsc": "tsc --noEmit -p ./@local/client; tsc --noEmit -p ./@local/api",
-    "test:all": "tsx ./@local/common/src/scripts/test.ts ./**/*.test.ts",
-    "test": "tsx ./@local/common/src/scripts/test.ts",
-    "dev:client": "npm run dev -w @local/client",
-    "dev:api": "npm run dev -w @local/api",
+    "tsc": "tsc --noEmit",
+    "test:all": "tsx ./scripts/test.ts ./**/*.test.ts",
+    "test": "tsx ./scripts/test.ts",
+    "client:dev": "NODE_OPTIONS='--import tsx/esm' vite ./src/client",
+    "client:build": "NODE_OPTIONS='--import tsx/esm' vite build ./src/client --outDir=../../dist/client --emptyOutDir",
+    "client:preview": "NODE_OPTIONS='--import tsx/esm' vite preview ./src/client --outDir=../../dist/client",
+    "api:dev": "tsx --env-file=.env --watch ./src/api/dev-server.ts",
+    "api:build": "esbuild ./src/api/main.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=dist/api",
     "db:create": "podman create --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=myapp -p 5432:5432 docker.io/library/postgres:latest",
     "db:remove": "podman rm postgres",
     "db:start": "podman start postgres",
@@ -24,9 +22,13 @@
     "@effect/sql": "^0.3.10",
     "@effect/sql-pg": "^0.3.11",
     "@tanstack/react-query": "^5.40.1",
-    "effect": "^3.3.0"
+    "effect": "^3.3.0",
+    "uuid": "^10.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "eslint": "^8.55.0",
@@ -36,6 +38,16 @@
     "tsx": "^4.7.2",
     "typescript": "^5.4.5",
     "esbuild": "^0.23.0",
-    "tiny-glob": "^0.2.9"
+    "tiny-glob": "^0.2.9",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8",
+    "@types/aws-lambda": "^8.10.138",
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.2",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2"
   }
 }

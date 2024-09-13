@@ -1,7 +1,7 @@
 import { Schema } from "@effect/schema";
 import { Ef, M } from "./toolbox";
 import { Todo } from "./types";
-import { ActionImpl, mkMutationDef, mkQueryDef } from "./restless";
+import { ActionImpl, mkMutationDef, mkQueryDef } from "../../libs/restless";
 import { NotFound } from "./errors";
 import * as Sql from "@effect/sql";
 import { pipe } from "effect";

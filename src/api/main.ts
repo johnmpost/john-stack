@@ -2,21 +2,21 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
-import { Ef, flow, O } from "@local/common/src/toolbox";
-import { Action, mkAction, mkRequestHandler } from "@local/common/src/restless";
-import {
-  createTodo,
-  CreateTodo,
-  getTodo,
-  GetTodo,
-  GetTodos,
-  getTodos,
-} from "@local/common/src/actions";
 import * as Pg from "@effect/sql-pg";
 import * as Sql from "@effect/sql";
 import { Config } from "effect";
-import { Server } from "@local/common/src/config";
 import { lambdaFailure, lambdaSuccess } from "./utils";
+import { Ef, O, flow } from "../common/toolbox";
+import { Server } from "../common/config";
+import {
+  CreateTodo,
+  createTodo,
+  GetTodo,
+  getTodo,
+  getTodos,
+  GetTodos,
+} from "../common/actions";
+import { Action, mkAction, mkRequestHandler } from "../../libs/restless";
 
 const SqlLive = Pg.client.layer(
   Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({

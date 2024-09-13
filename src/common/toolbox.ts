@@ -9,7 +9,6 @@ export {
   Effect as Ef,
   Match as M,
   Layer,
-  ConfigProvider,
 } from "effect";
 export { Schema } from "@effect/schema";
 export * as Sql from "@effect/sql";

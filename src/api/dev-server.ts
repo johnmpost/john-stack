@@ -6,7 +6,7 @@ import {
   Context,
 } from "aws-lambda";
 import { text } from "body-parser";
-import { handler } from "./src";
+import { handler } from "./main";
 
 type LambdaHandler = (
   event: APIGatewayProxyEventV2,
