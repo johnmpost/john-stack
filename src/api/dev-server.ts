@@ -22,7 +22,7 @@ const lambdaProxyWrapper =
       {} as Context,
     ).then(result => res.status(result.statusCode as number).send(result.body));
 
-const port = process.env.DEV_SERVER_PORT || 4000;
+const port = process.env.API_DEV_PORT;
 const app = express();
 app.use(text({ type: "*/*" }));
 
