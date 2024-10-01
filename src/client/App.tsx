@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { v4 as uuidv4 } from "uuid";
+import { v7 as uuidv7 } from "uuid";
 import { helloWorld } from "../common/utils";
 import { CreateTodo, GetTodo, GetTodos } from "../common/actions";
 import { config, useMutation, useQuery } from "./exports";
@@ -10,7 +10,7 @@ export const App = () => {
   const queryClient = useQueryClient();
   const { data: todos } = useQuery(GetTodos)({})();
   const { data: todo } = useQuery(GetTodo)({
-    id: "1-1-1-1",
+    id: "019249e4-3d6e-7744-b33d-a5ccf47ca4a5",
   })();
   const { mutate: createTodo } = useMutation(CreateTodo)({
     onSuccess: () =>
@@ -29,7 +29,7 @@ export const App = () => {
         <button
           onClick={() =>
             createTodo({
-              id: uuidv4(),
+              id: uuidv7(),
               description: "none",
               title: "Test Todo",
             })
