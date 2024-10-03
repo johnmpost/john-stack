@@ -4,6 +4,7 @@ import { v7 as uuidv7 } from "uuid";
 import { helloWorld } from "../common/utils";
 import { CreateTodo, GetTodo, GetTodos } from "../common/actions";
 import { config, useMutation, useQuery } from "./exports";
+import { Card, Stack, Typography } from "@mui/joy";
 
 export const App = () => {
   const [count, setCount] = useState(0);
@@ -38,14 +39,18 @@ export const App = () => {
           create todo
         </button>
       </div>
-      <div>
+      <Stack spacing={1}>
         {todos ? (
-          todos.map((todo, i) => <div key={i}>{todo.title}</div>)
+          todos.map(todo => (
+            <Card key={todo.id}>
+              <Typography level="title-lg">{todo.title}</Typography>
+              <Typography level="body-md">{todo.description}</Typography>
+            </Card>
+          ))
         ) : (
-          <div>loading todos...</div>
+          <></>
         )}
-        {todo ? <div>{todo.title}</div> : <div>loading single todo...</div>}
-      </div>
+      </Stack>
     </>
   );
 };
