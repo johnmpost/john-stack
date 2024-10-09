@@ -10,7 +10,7 @@
     "test": "tsx ./scripts/test.ts",
     "client:dev": "NODE_OPTIONS='--import tsx/esm' vite ./src/client --port=5002 --strictPort",
     "client:build": "NODE_OPTIONS='--import tsx/esm' vite build ./src/client --outDir=../../dist/client --emptyOutDir",
-    "client:preview": "NODE_OPTIONS='--import tsx/esm' vite preview ./src/client --outDir=../../dist/client --port=5000 --strictPort",
+    "client:preview": "NODE_OPTIONS='--import tsx/esm' vite preview ./src/client --outDir=../../dist/client --port=5002 --strictPort",
     "api:dev": "API_DEV_PORT=5001 tsx --env-file=.env --watch ./src/api/dev-server.ts",
     "api:build": "esbuild ./src/api/main.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=dist/api",
     "db:create": "podman create --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=myapp -p 5000:5432 -v ./migrations:/docker-entrypoint-initdb.d docker.io/library/postgres:latest",
