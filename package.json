@@ -8,15 +8,17 @@
     "tsc": "tsc --noEmit",
     "test:all": "tsx ./scripts/test.ts ./**/*.test.ts",
     "test": "tsx ./scripts/test.ts",
-    "client:dev": "NODE_OPTIONS='--import tsx/esm' vite ./src/client --port=5002 --strictPort",
+    "client:start": "NODE_OPTIONS='--import tsx/esm' vite ./src/client --port=5002 --strictPort",
     "client:build": "NODE_OPTIONS='--import tsx/esm' vite build ./src/client --outDir=../../dist/client --emptyOutDir",
     "client:preview": "NODE_OPTIONS='--import tsx/esm' vite preview ./src/client --outDir=../../dist/client --port=5002 --strictPort",
-    "api:dev": "API_DEV_PORT=5001 tsx --env-file=.env --watch ./src/api/dev-server.ts",
+    "api:start": "API_DEV_PORT=5001 tsx --env-file=.env --watch ./src/api/dev-server.ts",
     "api:build": "esbuild ./src/api/main.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=dist/api",
-    "db:create": "podman create --name postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=myapp -p 5000:5432 -v ./migrations:/docker-entrypoint-initdb.d docker.io/library/postgres:latest",
-    "db:remove": "podman rm postgres",
-    "db:start": "podman start postgres",
-    "db:stop": "podman stop postgres"
+    "db:start": "podman-compose -f ./scripts/pg-dev.yaml up -d",
+    "db:stop": "podman-compose -f ./scripts/pg-dev.yaml down",
+    "db:clean": "podman-compose -f ./scripts/pg-dev.yaml down -v",
+    "idp:start": "podman-compose -f ./scripts/zitadel-dev.yaml up -d",
+    "idp:stop": "podman-compose -f ./scripts/zitadel-dev.yaml down",
+    "idp:clean": "podman-compose -f ./scripts/zitadel-dev.yaml down -v"
   },
   "dependencies": {
     "@effect/schema": "^0.67.21",
