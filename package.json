@@ -13,9 +13,9 @@
     "client:preview": "NODE_OPTIONS='--import tsx/esm' vite preview ./src/client --outDir=../../dist/client --port=5002 --strictPort",
     "api:start": "API_DEV_PORT=5001 tsx --env-file=.env --watch ./src/api/dev-server.ts",
     "api:build": "esbuild ./src/api/main.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outdir=dist/api",
-    "db:start": "podman-compose -f ./scripts/pg-dev.yaml up -d",
-    "db:stop": "podman-compose -f ./scripts/pg-dev.yaml down",
-    "db:clean": "podman-compose -f ./scripts/pg-dev.yaml down -v",
+    "db:start": "podman-compose -p johnstack -f ./scripts/pg-dev.yaml up -d",
+    "db:stop": "podman-compose -p johnstack -f ./scripts/pg-dev.yaml down",
+    "db:clean": "podman volume rm johnstack_pgdata",
     "idp:start": "podman-compose -f ./scripts/zitadel-dev.yaml up -d",
     "idp:stop": "podman-compose -f ./scripts/zitadel-dev.yaml down",
     "idp:clean": "podman-compose -f ./scripts/zitadel-dev.yaml down -v"

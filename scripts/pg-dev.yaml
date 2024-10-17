@@ -2,10 +2,9 @@ version: "3.8"
 services:
   postgres:
     image: docker.io/library/postgres:latest
-    container_name: postgres
     environment:
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=myapp
+      - POSTGRES_DB=johnstack
     ports:
       - "5000:5432"
     volumes:
