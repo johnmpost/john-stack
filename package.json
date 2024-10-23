@@ -16,8 +16,8 @@
     "db:start": "podman-compose -p johnstack -f ./scripts/pg-dev.yaml up -d",
     "db:stop": "podman-compose -p johnstack -f ./scripts/pg-dev.yaml down",
     "db:clean": "podman volume rm johnstack_pgdata",
-    "idp:start": "podman-compose -f ./scripts/zitadel-dev.yaml up -d",
-    "idp:stop": "podman-compose -f ./scripts/zitadel-dev.yaml down",
+    "idp:start": "podman-compose -p johnstack -f ./scripts/zitadel-dev.yaml up -d",
+    "idp:stop": "podman-compose -p johnstack -f ./scripts/zitadel-dev.yaml down",
     "idp:clean": "podman-compose -f ./scripts/zitadel-dev.yaml down -v"
   },
   "dependencies": {

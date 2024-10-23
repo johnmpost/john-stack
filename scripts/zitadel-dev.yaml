@@ -26,7 +26,7 @@ services:
 
   db:
     restart: 'always'
-    image: postgres:16-alpine
+    image: 'docker.io/library/postgres:16-alpine'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -34,7 +34,7 @@ services:
     networks:
       - 'zitadel'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "zitadel", "-U", "postgres"]
+      test: ["CMD-SHELL", "pg_isready -d zitadel -U postgres"]
       interval: '10s'
       timeout: '30s'
       retries: 5
