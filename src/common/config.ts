@@ -6,6 +6,8 @@ const prefix = prefix_(viteEnvPrefix);
 
 export const Client = Config.all({
   restlessServerUrl: Config.string(prefix("RESTLESS_SERVER_URL")),
+  zitadelClientId: Config.string(prefix("ZITADEL_CLIENT_ID")),
+  zitadelUrl: Config.string(prefix("ZITADEL_URL")),
 });
 
 export const Server = Config.all({
