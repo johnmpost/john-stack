@@ -4,13 +4,15 @@ import {
 } from "aws-lambda";
 import * as Pg from "@effect/sql-pg";
 import * as Sql from "@effect/sql";
-import { Config } from "effect";
+import { Config, ConfigProvider, Layer, pipe } from "effect";
 import { lambdaFailure, lambdaSuccess } from "./utils";
 import { Ef, O, flow } from "../common/toolbox";
 import { Server } from "../common/config";
 import {
   CreateTodo,
   createTodo,
+  discoverMe,
+  DiscoverMe,
   GetTodo,
   getTodo,
   getTodos,
@@ -19,19 +21,23 @@ import {
 import { Action, mkAction, mkRequestHandler } from "../../libs/restless";
 
 const SqlLive = Pg.client.layer(
-  Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({
-    host: dbHost,
-    port: dbPort,
-    database: dbName,
-    username: dbUser,
-    password: dbPassword,
-  }))(Server),
+  pipe(
+    Server,
+    Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({
+      host: dbHost,
+      port: dbPort,
+      database: dbName,
+      username: dbUser,
+      password: dbPassword,
+    })),
+  ),
 );
 
 const operations = [
   mkAction(GetTodos, getTodos),
   mkAction(GetTodo, getTodo),
   mkAction(CreateTodo, createTodo),
+  mkAction(DiscoverMe, discoverMe),
 ] as Action<any, any, any, any, any, any, Sql.client.Client>[];
 // TODO somehow infer requirements correctly
 
@@ -45,6 +51,7 @@ export const handler: (
   O.getOrElse(() => ""),
   handleRequest,
   Ef.provide(SqlLive),
+  Ef.provide(Layer.setConfigProvider(ConfigProvider.fromJson(process.env))),
   Ef.catchAllDefect(e => (console.log(e), Ef.fail({ error: "defect" }))),
   Ef.match({ onFailure: lambdaFailure, onSuccess: lambdaSuccess }),
   Ef.runPromise,

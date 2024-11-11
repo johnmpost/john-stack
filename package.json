@@ -29,7 +29,6 @@
     "@faker-js/faker": "^9.0.3",
     "@mui/joy": "^5.0.0-beta.48",
     "@tanstack/react-query": "^5.40.1",
-    "@zitadel/node": "^3.0.0",
     "@zitadel/react": "^1.0.3",
     "effect": "^3.3.0",
     "react": "^18.2.0",

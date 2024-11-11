@@ -16,4 +16,7 @@ export const Server = Config.all({
   dbName: Config.string("DB_NAME"),
   dbUser: Config.string("DB_USER"),
   dbPassword: Config.redacted("DB_PASSWORD"),
+  zitadelUrl: Config.string(prefix("ZITADEL_URL")),
+  zitadelClientId: Config.string("API_ZITADEL_CLIENT_ID"),
+  zitadelClientSecret: Config.string("API_ZITADEL_CLIENT_SECRET"),
 });

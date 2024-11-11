@@ -176,20 +176,25 @@ export const mkUseQuery =
       "queryFn" | "queryKey"
     > = {},
   ) => {
-    const query = pipe(
-      { _tag: queryDef._tag, params },
-      Schema.encodeSync(Schema.parseJson(queryDef.params)),
-      postJson(url),
-      Ef.flatMap(
-        Schema.decodeSync(
-          Schema.parseJson(
-            Schema.Either({ left: queryDef.error, right: queryDef.success }),
+    const query = () =>
+      pipe(
+        { _tag: queryDef._tag, params },
+        Schema.encodeSync(Schema.parseJson(queryDef.params)),
+        postJson(url),
+        Ef.flatMap(
+          Schema.decodeSync(
+            Schema.parseJson(
+              Schema.Either({ left: queryDef.error, right: queryDef.success }),
+            ),
           ),
         ),
-      ),
-    );
+      );
     const queryKey = queryDef.mkQueryKey(params);
-    return useQuery({ queryKey, queryFn: () => Ef.runPromise(query), ...opts });
+    return useQuery({
+      queryKey,
+      queryFn: () => Ef.runPromise(query()),
+      ...opts,
+    });
   };
 
 export const mkUseMutation =

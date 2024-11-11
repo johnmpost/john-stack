@@ -18,4 +18,5 @@ export const zitadel = createZitadelAuth({
   client_id: config.zitadelClientId,
   redirect_uri: "http://localhost:5002/callback",
   post_logout_redirect_uri: "http://localhost:5002/",
+  scope: "openid email profile urn:zitadel:iam:user:resourceowner",
 });
