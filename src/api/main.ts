@@ -9,12 +9,12 @@ import { lambdaFailure, lambdaSuccess } from "./utils";
 import { Ef, O, flow } from "../common/toolbox";
 import { Server } from "../common/config";
 import {
-  CreateTodo,
-  createTodo,
-  discoverMe,
-  DiscoverMe,
-  GetTodo,
-  getTodo,
+  // CreateTodo,
+  // createTodo,
+  // discoverMe,
+  // DiscoverMe,
+  // GetTodo,
+  // getTodo,
   getTodos,
   GetTodos,
 } from "../common/actions";
@@ -35,9 +35,9 @@ const SqlLive = Pg.client.layer(
 
 const operations = [
   mkAction(GetTodos, getTodos),
-  mkAction(GetTodo, getTodo),
-  mkAction(CreateTodo, createTodo),
-  mkAction(DiscoverMe, discoverMe),
+  // mkAction(GetTodo, getTodo),
+  // mkAction(CreateTodo, createTodo),
+  // mkAction(DiscoverMe, discoverMe),
 ] as Action<any, any, any, any, any, any, Sql.client.Client>[];
 // TODO somehow infer requirements correctly
 

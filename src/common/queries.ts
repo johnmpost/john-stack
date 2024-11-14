@@ -1,11 +1,12 @@
 import { A, Ef, Schema, Sql, pipe } from "./toolbox";
 import { Todo } from "./types";
 
-export const getTodos = pipe(
-  Sql.client.Client,
-  Ef.flatMap(sql => sql`SELECT * FROM todos`),
-  Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
-);
+export const getTodos = (orgId: string) =>
+  pipe(
+    Sql.client.Client,
+    Ef.flatMap(sql => sql`SELECT * FROM todos WHERE orgid = ${orgId}`),
+    Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
+  );
 
 export const getTodo = (id: string) =>
   pipe(

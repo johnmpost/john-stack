@@ -7,13 +7,16 @@ import { Config } from "effect";
 import { Server } from "../../src/common/config";
 
 const SqlLive = Pg.client.layer(
-  Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({
-    host: dbHost,
-    port: dbPort,
-    database: dbName,
-    username: dbUser,
-    password: dbPassword,
-  }))(Server),
+  pipe(
+    Server,
+    Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({
+      host: dbHost,
+      port: dbPort,
+      database: dbName,
+      username: dbUser,
+      password: dbPassword,
+    })),
+  ),
 );
 
 pipe(
@@ -22,6 +25,7 @@ pipe(
     id: uuidv7(),
     title: `${faker.hacker.verb()} the ${faker.hacker.noun()}`,
     description: faker.hacker.phrase(),
+    orgid: "291672745513584155",
   })),
   A.map(createTodo),
   Ef.all,

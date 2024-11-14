@@ -1,7 +1,7 @@
 import { useQuery as usePromiseQuery } from "@tanstack/react-query";
 import { useQuery, zitadel } from "./exports";
 import { useEffect } from "react";
-import { DiscoverMe } from "../common/actions";
+import { GetTodos } from "../common/actions";
 
 export const Dash = () => {
   const { data: user } = usePromiseQuery({
@@ -9,7 +9,7 @@ export const Dash = () => {
     queryFn: () => zitadel.userManager.getUser(),
   });
 
-  const { data: whoami } = useQuery(DiscoverMe)({
+  const { data: todos } = useQuery(GetTodos)({
     accessToken: user?.access_token as string,
   })({
     enabled: user?.access_token !== undefined,
@@ -30,7 +30,7 @@ export const Dash = () => {
       <p>signed in, app goes here</p>
       <p>welcome {user.profile.email}</p>
       <p>{user.access_token}</p>
-      {whoami && <pre>{JSON.stringify(JSON.parse(whoami), null, 2)}</pre>}
+      {todos && <pre>{JSON.stringify(todos, null, 2)}</pre>}
       <button onClick={() => zitadel.signout()}>sign out</button>
     </div>
   );
