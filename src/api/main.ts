@@ -6,21 +6,16 @@ import * as Sql from "@effect/sql";
 import { ConfigProvider, Layer } from "effect";
 import { lambdaFailure, lambdaSuccess } from "./dev-utils";
 import { Ef, O, flow } from "../common/toolbox";
-import { getTodos, GetTodos } from "../common/actions";
+import { createTodo, CreateTodo, getTodos, GetTodos } from "../common/actions";
 import { Action, mkAction, mkRequestHandler } from "../../libs/restless";
 import { mkDb } from "../common/layers";
 
 const SqlLive = mkDb();
 
-const operations = [mkAction(GetTodos, getTodos)] as Action<
-  any,
-  any,
-  any,
-  any,
-  any,
-  any,
-  Sql.client.Client
->[];
+const operations = [
+  mkAction(GetTodos, getTodos),
+  mkAction(CreateTodo, createTodo),
+] as Action<any, any, any, any, any, any, Sql.client.Client>[];
 // TODO somehow infer requirements correctly
 
 const handleRequest = mkRequestHandler(operations);
