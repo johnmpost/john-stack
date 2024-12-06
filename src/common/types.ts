@@ -4,7 +4,7 @@ export const Todo = Schema.Struct({
   id: Schema.String,
   title: pipe(Schema.String, Schema.maxLength(255)),
   description: Schema.String,
-  orgid: Schema.String,
+  orgId: Schema.String,
 });
 export type Todo = typeof Todo.Type;
 

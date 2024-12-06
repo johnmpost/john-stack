@@ -1,5 +1,5 @@
 import { tests } from "../../libs/fununit/define";
-import { multiply } from "./utils";
+import { multiply } from "./dev-utils";
 
 tests(
   [

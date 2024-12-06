@@ -4,7 +4,7 @@ import { Todo } from "./types";
 export const getTodos = (orgId: string) =>
   pipe(
     Sql.client.Client,
-    Ef.flatMap(sql => sql`SELECT * FROM todos WHERE orgid = ${orgId}`),
+    Ef.flatMap(sql => sql`SELECT * FROM todos WHERE org_id = ${orgId}`),
     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
   );
 

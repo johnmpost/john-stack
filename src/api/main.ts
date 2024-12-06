@@ -2,43 +2,25 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
-import * as Pg from "@effect/sql-pg";
 import * as Sql from "@effect/sql";
-import { Config, ConfigProvider, Layer, pipe } from "effect";
-import { lambdaFailure, lambdaSuccess } from "./utils";
+import { ConfigProvider, Layer } from "effect";
+import { lambdaFailure, lambdaSuccess } from "./dev-utils";
 import { Ef, O, flow } from "../common/toolbox";
-import { Server } from "../common/config";
-import {
-  // CreateTodo,
-  // createTodo,
-  // discoverMe,
-  // DiscoverMe,
-  // GetTodo,
-  // getTodo,
-  getTodos,
-  GetTodos,
-} from "../common/actions";
+import { getTodos, GetTodos } from "../common/actions";
 import { Action, mkAction, mkRequestHandler } from "../../libs/restless";
+import { mkDb } from "../common/layers";
 
-const SqlLive = Pg.client.layer(
-  pipe(
-    Server,
-    Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({
-      host: dbHost,
-      port: dbPort,
-      database: dbName,
-      username: dbUser,
-      password: dbPassword,
-    })),
-  ),
-);
+const SqlLive = mkDb();
 
-const operations = [
-  mkAction(GetTodos, getTodos),
-  // mkAction(GetTodo, getTodo),
-  // mkAction(CreateTodo, createTodo),
-  // mkAction(DiscoverMe, discoverMe),
-] as Action<any, any, any, any, any, any, Sql.client.Client>[];
+const operations = [mkAction(GetTodos, getTodos)] as Action<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  Sql.client.Client
+>[];
 // TODO somehow infer requirements correctly
 
 const handleRequest = mkRequestHandler(operations);

@@ -12,7 +12,8 @@ import {
   updateTodo as _updateTodo,
   deleteTodo as _deleteTodo,
 } from "./queries";
-import { flatDie, introspect } from "./utils";
+import { flatDie } from "./utils";
+import { introspect } from "./helpers";
 
 const NoInput = Schema.Struct({});
 const WithAccessToken = Schema.Struct({ accessToken: Schema.String });
@@ -41,6 +42,28 @@ export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = ({
     Ef.mapError(M.valueTags(killDefects)),
   );
 
+export const CreateTodo = mkMutationDef(
+  "CreateTodo",
+  // Todo.pipe(Schema.omit("orgid")).pipe(Schema.extend(WithAccessToken)),
+  Schema.Struct({ todo: Todo.pipe(Schema.omit("orgId")) }).pipe(
+    Schema.extend(WithAccessToken),
+  ),
+  Todo,
+  NotAuthorized,
+);
+export const createTodo: ActionImpl<typeof CreateTodo, Sql.client.Client> = ({
+  todo,
+  accessToken,
+}) =>
+  pipe(
+    accessToken,
+    introspect,
+    Ef.map(x => x["urn:zitadel:iam:user:resourceowner:id"]),
+    Ef.map(orgId => ({ ...todo, orgId })),
+    Ef.flatMap(_createTodo),
+    Ef.mapError(M.valueTags(killDefects)),
+  );
+
 // export const GetTodo = mkQueryDef(
 //   "GetTodo",
 //   Schema.Struct({ id: Schema.String }),
@@ -60,12 +83,6 @@ export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = ({
 //       }),
 //     ),
 //   );
-
-// export const CreateTodo = mkMutationDef("CreateTodo", Todo, Todo, Schema.Never);
-// export const createTodo: ActionImpl<
-//   typeof CreateTodo,
-//   Sql.client.Client
-// > = todo => pipe(_createTodo(todo), Ef.mapError(M.valueTags(killDefects)));
 
 // export const UpdateTodo = mkMutationDef("UpdateTodo", Todo, Todo, NotFound);
 // export const updateTodo: ActionImpl<
