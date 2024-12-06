@@ -29,7 +29,7 @@ export const GetTodos = mkQueryDef(
   WithAccessToken,
   () => ["todos"],
   Schema.Array(Todo),
-  NotAuthorized,
+  NotAuthorized, // currently is actually Void, need to make `introspect` more specific
 );
 export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = ({
   accessToken,
