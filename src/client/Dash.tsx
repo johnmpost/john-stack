@@ -1,49 +1,59 @@
-import {
-  useQuery as usePromiseQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { useMutation, useQuery, zitadel } from "./exports";
-import { useEffect } from "react";
-import { CreateTodo, GetTodos } from "../common/actions";
-import { v7 } from "uuid";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "./exports";
+import { CreateTodo, DeleteTodo, GetTodos } from "../common/actions";
+import { v7 as uuidv7 } from "uuid";
+import { User } from "oidc-client-ts";
+import { zitadel } from "./exports";
+import { match } from "ts-pattern";
+import { Card } from "@mui/joy";
+import { faker } from "@faker-js/faker";
 
-export const Dash = () => {
+type Props = { user: User };
+
+export const Dash = ({ user }: Props) => {
   const queryClient = useQueryClient();
-  const { data: user } = usePromiseQuery({
-    queryKey: ["user"],
-    queryFn: () => zitadel.userManager.getUser(),
-  });
 
   const { data: todos } = useQuery(GetTodos)({
-    accessToken: user?.access_token as string,
-  })({
-    enabled: user?.access_token !== undefined,
-  });
+    accessToken: user.access_token,
+  })({});
 
   const { mutate: createTodo } = useMutation(CreateTodo)({
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
   });
 
-  useEffect(() => {
-    if (user === null || user?.expired) {
-      zitadel.authorize();
-    }
-  }, [user]);
+  const { mutate: deleteTodo } = useMutation(DeleteTodo)({
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+  });
 
-  return user === null ? (
-    <div>not logged in. redirecting...</div>
-  ) : user === undefined ? (
-    <div>loading...</div>
-  ) : (
+  return (
     <div>
-      <p>signed in, app goes here</p>
       <p>welcome {user.profile.email}</p>
       <p>{user.access_token}</p>
-      {todos && <pre>{JSON.stringify(todos, null, 2)}</pre>}
+      {todos === undefined ? (
+        <div>loading todos...</div>
+      ) : (
+        todos.map(todo => (
+          <Card key={todo.id}>
+            <div>{todo.title}</div>
+            <div>{todo.description}</div>
+            <button
+              onClick={() =>
+                deleteTodo({ todoId: todo.id, accessToken: user.access_token })
+              }
+            >
+              delete
+            </button>
+          </Card>
+        ))
+      )}
       <button
         onClick={() =>
           createTodo({
-            todo: { id: v7(), description: "new todo desc", title: "new todo" },
+            todo: {
+              id: uuidv7(),
+              title: `${faker.hacker.verb()} the ${faker.hacker.noun()}`,
+              description: faker.hacker.phrase(),
+            },
             accessToken: user.access_token,
           })
         }

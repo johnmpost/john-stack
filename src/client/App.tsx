@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Callback } from "./Callback";
-import { Dash } from "./Dash";
+import { Root } from "./Root";
 
 export const App = () => {
   return (
@@ -9,7 +9,7 @@ export const App = () => {
 
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dash />} />
+          <Route path="/" element={<Root />} />
           <Route path="/callback" element={<Callback />} />
         </Routes>
       </BrowserRouter>
