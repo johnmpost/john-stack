@@ -1,3 +1,7 @@
+variable admin_credentials_json {
+  type        = string
+}
+
 terraform {
   required_providers {
     zitadel = {
@@ -11,9 +15,8 @@ provider "zitadel" {
   domain           = "localhost"
   insecure         = "true"
   port             = "5003"
-  jwt_profile_json = "{\"client_id\": \"zitadel-admin\", \"client_secret\": \"Password1!\"}"
+  jwt_profile_json = var.admin_credentials_json
 }
-
 
 resource "zitadel_org" "john_stack_co" {
     name = "john-stack-co"
