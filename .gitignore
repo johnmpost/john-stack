@@ -2,3 +2,5 @@ node_modules/
 dist/
 .vite_cache/
 .env
+.terraform/
+.terraform*

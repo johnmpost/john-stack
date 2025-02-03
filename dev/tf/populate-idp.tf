@@ -2,7 +2,7 @@ terraform {
   required_providers {
     zitadel = {
       source  = "zitadel/zitadel"
-      version = "latest"
+      version = "2.0.2"
     }
   }
 }
@@ -21,15 +21,15 @@ resource "zitadel_org" "john_stack_co" {
 
 resource "zitadel_project" "john_stack" {
   name                     = "john-stack"
-  org_id                   = data.zitadel_org.john_stack_co.id
+  org_id                   = zitadel_org.john_stack_co.id
   project_role_assertion   = true
   has_project_check        = true
   private_labeling_setting = "PRIVATE_LABELING_SETTING_ENFORCE_PROJECT_RESOURCE_OWNER_POLICY"
 }
 
 resource "zitadel_application_oidc" "client_app" {
-  project_id = data.zitadel_project.john_stack.id
-  org_id     = data.zitadel_org.john_stack_co.id
+  project_id = zitadel_project.john_stack.id
+  org_id     = zitadel_org.john_stack_co.id
 
   name                         = "client-app"
   redirect_uris                = ["http://localhost:5002/callback"]
@@ -50,8 +50,8 @@ resource "zitadel_application_oidc" "client_app" {
 }
 
 resource "zitadel_application_api" "api_app" {
-  project_id       = data.zitadel_project.john_stack.id
-  org_id           = data.zitadel_org.john_stack_co.id
+  project_id       = zitadel_project.john_stack.id
+  org_id           = zitadel_org.john_stack_co.id
   name             = "api-app"
   auth_method_type = "API_AUTH_METHOD_TYPE_BASIC"
 }
@@ -61,7 +61,7 @@ resource "zitadel_org" "wayne_enterprises" {
 }
 
 resource "zitadel_human_user" "john_post" {
-  org_id             = data.zitadel_org.john_stack_co.id
+  org_id             = zitadel_org.john_stack_co.id
   user_name          = "john@john-stack-co.com"
   first_name         = "John"
   last_name          = "Post"
@@ -72,7 +72,7 @@ resource "zitadel_human_user" "john_post" {
 }
 
 resource "zitadel_human_user" "bruce_wayne" {
-  org_id             = data.zitadel_org.wayne_enterprises.id
+  org_id             = zitadel_org.wayne_enterprises.id
   user_name          = "bruce@wayne-enterprises.com"
   first_name         = "Bruce"
   last_name          = "Wayne"
@@ -83,7 +83,7 @@ resource "zitadel_human_user" "bruce_wayne" {
 }
 
 resource "zitadel_human_user" "alfred_pennyworth" {
-  org_id             = data.zitadel_org.wayne_enterprises.id
+  org_id             = zitadel_org.wayne_enterprises.id
   user_name          = "alfred@wayne-enterprises.com"
   first_name         = "Alfred"
   last_name          = "Pennyworth"
@@ -95,14 +95,17 @@ resource "zitadel_human_user" "alfred_pennyworth" {
 
 output "client_app_client_id" {
     value = zitadel_application_oidc.client_app.client_id
+    sensitive = true
 }
 
 output "api_app_client_id" {
     value = zitadel_application_api.api_app.client_id
+    sensitive = true
 }
 
 output "api_app_client_secret" {
     value = zitadel_application_api.api_app.client_secret
+    sensitive = true
 }
 
 output "john_stack_co_id" {
