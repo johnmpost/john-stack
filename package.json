@@ -9,6 +9,7 @@
     "tsc": "tsc --noEmit",
     "test:all": "tsx ./dev/scripts/run-tests.ts ./src/**/*.test.ts",
     "test": "tsx ./dev/scripts/run-tests.ts",
+    "seed": "# TODO start pg, migrate; start zitadel; podman exec cat creds | tf seed zitadel | ts seed pg",
     "client:start": "NODE_OPTIONS='--import tsx/esm' vite ./src/client --port=5002 --strictPort",
     "client:build": "NODE_OPTIONS='--import tsx/esm' vite build ./src/client --outDir=../../dist/client --emptyOutDir",
     "client:preview": "NODE_OPTIONS='--import tsx/esm' vite preview ./src/client --outDir=../../dist/client --port=5002 --strictPort",

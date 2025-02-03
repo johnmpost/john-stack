@@ -18,6 +18,10 @@ services:
       - "ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=postgres"
       - "ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable"
       - "ZITADEL_EXTERNALSECURE=false"
+      - "ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH=/machinekey/zitadel-admin-sa.json"
+      - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME=zitadel-admin-sa"
+      - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME=Admin"
+      - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINEKEY_TYPE=1"
     depends_on:
       db:
         condition: "service_healthy"
