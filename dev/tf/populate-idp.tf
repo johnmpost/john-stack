@@ -11,7 +11,7 @@ provider "zitadel" {
   domain           = "localhost"
   insecure         = "true"
   port             = "5003"
-  jwt_profile_json = "{'client_id': 'zitadel-admin', 'client_secret': 'Password1!'}"
+  jwt_profile_json = "{\"client_id\": \"zitadel-admin\" \"client_secret\" \"Password1!\""
 }
 
 
