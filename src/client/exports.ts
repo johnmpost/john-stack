@@ -1,17 +1,17 @@
 import { ConfigProvider } from "effect";
 import { Ef, Layer, pipe } from "../common/toolbox";
-import { Client as ClientConfig } from "../common/config";
+import { BrowserAppConfig } from "../common/config";
 import { mkUseMutation, mkUseQuery } from "../../libs/restless";
 import { createZitadelAuth } from "@zitadel/react";
 
 export const config = pipe(
-  ClientConfig,
+  BrowserAppConfig,
   Ef.provide(Layer.setConfigProvider(ConfigProvider.fromJson(import.meta.env))),
   Ef.runSync,
 );
 
-export const useQuery = mkUseQuery(config.restlessServerUrl);
-export const useMutation = mkUseMutation(config.restlessServerUrl);
+export const useQuery = mkUseQuery(config.apiServiceUrl);
+export const useMutation = mkUseMutation(config.apiServiceUrl);
 
 export const zitadel = createZitadelAuth({
   authority: config.zitadelUrl,

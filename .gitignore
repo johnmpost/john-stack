@@ -1,7 +1,7 @@
 node_modules/
 dist/
 .vite_cache/
-.env
+*.env.*
 .terraform/
 .terraform*
 *.tfstate*

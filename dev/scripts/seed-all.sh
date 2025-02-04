@@ -2,15 +2,18 @@ admin_credentials_json=$(podman cp johnstack_idp_zitadel_1:/machinekey/zitadel-a
 
 terraform -chdir=./dev/tf apply -var="admin_credentials_json=$admin_credentials_json"
 
-export CLIENT_APP_CLIENT_ID=$(terraform output -raw client_app_client_id)
-export API_APP_CLIENT_ID=$(terraform output -raw api_app_client_id)
-export API_APP_CLIENT_SECRET=$(terraform output -raw api_app_client_secret)
+ENV_FILE=".env.seed"
 
-export JOHN_STACK_CO_ID=$(terraform output -raw john_stack_co_id)
-export WAYNE_ENTERPRISES_ID=$(terraform output -raw wayne_enterprises_id)
+# used in app code
+echo "X_ZITADEL_CLIENT_ID_BROWSER_APP=$(terraform -chdir=./dev/tf output -raw client_app_client_id)" > $ENV_FILE
+echo "ZITADEL_CLIENT_ID_API_SERVICE=$(terraform -chdir=./dev/tf output -raw api_app_client_id)" >> $ENV_FILE
+echo "ZITADEL_CLIENT_SECRET_API_SERVICE=$(terraform -chdir=./dev/tf output -raw api_app_client_secret)" >> $ENV_FILE
 
-export JOHN_POST_ID=$(terraform output -raw john_post_id)
-export BRUCE_WAYNE_ID=$(terraform output -raw bruce_wayne_id)
-export ALFRED_PENNYWORTH_ID=$(terraform output -raw alfred_pennyworth_id)
+# used in seed scripts
+echo "JOHN_STACK_CO_ID=$(terraform -chdir=./dev/tf output -raw john_stack_co_id)" >> $ENV_FILE
+echo "WAYNE_ENTERPRISES_ID=$(terraform -chdir=./dev/tf output -raw wayne_enterprises_id)" >> $ENV_FILE
+echo "JOHN_POST_ID=$(terraform -chdir=./dev/tf output -raw john_post_id)" >> $ENV_FILE
+echo "BRUCE_WAYNE_ID=$(terraform -chdir=./dev/tf output -raw bruce_wayne_id)" >> $ENV_FILE
+echo "ALFRED_PENNYWORTH_ID=$(terraform -chdir=./dev/tf output -raw alfred_pennyworth_id)" >> $ENV_FILE
 
 # run the db seed script

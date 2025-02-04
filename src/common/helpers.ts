@@ -1,11 +1,11 @@
-import { Server } from "./config";
+import { ApiServiceConfig } from "./config";
 import { Ef, pipe, Schema } from "./toolbox";
 import { IntrospectResult } from "./types";
 import { encodedBasicAuth, tokenIntrospectUrl } from "./utils";
 
 export const introspect = (accessToken: string) =>
   pipe(
-    Server,
+    ApiServiceConfig,
     Ef.flatMap(({ zitadelClientId, zitadelClientSecret, zitadelUrl }) =>
       Ef.promise(() =>
         fetch(tokenIntrospectUrl(zitadelUrl), {
