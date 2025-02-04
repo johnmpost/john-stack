@@ -18,7 +18,7 @@ services:
       - "ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=postgres"
       - "ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable"
       - "ZITADEL_EXTERNALSECURE=false"
-      - "ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH=/zitadel-admin-sa.json"
+      - "ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH=/machinekey/zitadel-admin-sa.json"
       - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME=zitadel-admin-sa"
       - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME=Admin"
       - "ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINEKEY_TYPE=1"
@@ -27,6 +27,8 @@ services:
         condition: "service_healthy"
     ports:
       - "5003:8080"
+    volumes:
+      - machinekey:/machinekey
 
   db:
     restart: "always"
@@ -46,8 +48,18 @@ services:
       retries: 5
       start_period: "20s"
 
+  volume-setup:
+    image: alpine:latest
+    container_name: volume-setup
+    volumes:
+      - machinekey:/machinekey
+    command: >
+      sh -c "chmod 777 /machinekey && echo 'Permissions set for /machinekey'"
+    restart: "no"
+
 networks:
   zitadel:
 
 volumes:
   pgdata:
+  machinekey:

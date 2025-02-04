@@ -20,7 +20,7 @@
     "db:clean": "podman volume rm johnstack_db_pgdata",
     "idp:start": "podman-compose -p johnstack_idp -f ./dev/dev-services/docker-compose.zitadel.yaml up -d",
     "idp:stop": "podman-compose -p johnstack_idp -f ./dev/dev-services/docker-compose.zitadel.yaml down",
-    "idp:clean": "podman volume rm johnstack_idp_pgdata"
+    "idp:clean": "podman volume rm johnstack_idp_pgdata johnstack_idp_machinekey"
   },
   "dependencies": {
     "@effect/schema": "^0.67.21",
