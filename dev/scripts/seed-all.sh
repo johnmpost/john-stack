@@ -17,3 +17,4 @@ echo "BRUCE_WAYNE_ID=$(terraform -chdir=./dev/tf output -raw bruce_wayne_id)" >>
 echo "ALFRED_PENNYWORTH_ID=$(terraform -chdir=./dev/tf output -raw alfred_pennyworth_id)" >> $ENV_FILE
 
 # run the db seed script
+tsx --env-file=.env.static --env-file=.env.seed ./dev/scripts/seed-db.ts
