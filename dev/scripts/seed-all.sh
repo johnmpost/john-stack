@@ -1,3 +1,9 @@
+zitadel_is_ready=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:5003/debug/ready" | grep -q '^200$' && echo true || echo false)
+if [ "$zitadel_is_ready" = "false" ]; then
+  echo "Zitadel is not ready yet. Exiting without seeding."
+  exit 1
+fi
+
 admin_credentials_json=$(podman cp johnstack_idp_zitadel_1:/machinekey/zitadel-admin-sa.json - | tar -xO)
 
 terraform -chdir=./dev/tf apply -var="admin_credentials_json=$admin_credentials_json"
@@ -19,4 +25,4 @@ echo "ALFRED_PENNYWORTH_ID=$(terraform -chdir=./dev/tf output -raw alfred_pennyw
 # run the db seed script
 echo "seeding db..."
 tsx --env-file=.env.static --env-file=.env.seed ./dev/scripts/seed-db.ts
-echo "finished seeding db"
+echo "finished seeding db."
