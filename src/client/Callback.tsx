@@ -10,7 +10,6 @@ export const Callback = () => {
   return processCallback.loading ? (
     <div>processed login. redirecting...</div>
   ) : (
-    // <Navigate to="/" />
-    <div>{JSON.stringify(processCallback)}</div>
+    <Navigate to="/" />
   );
 };
