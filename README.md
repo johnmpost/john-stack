@@ -1,7 +1,5 @@
 The john-stack is an opinionated approach to full-stack web applications, with a focus on B2B SaaS offerings. This repository is an example application. Be aware that neither the john-stack nor the example application is fully fleshed out. I'm just hosting it here to make it easier to show people the cool things in it.
 
-## running locally
-
 ### quickstart
 
 1. clone the repo to a linux environment
@@ -26,7 +24,7 @@ the **application** or **app**: the whole thing together
 
 **dependency services** or **deps**: third-party services the app relies on, but whose source code doesn't live in this repo (e.g. postgres or zitadel)
 
-**application components** or **components**: each part of the app whose source code does live in this repo (e.g. the api service or the browser app)
+**application components** or **app components**: each part of the app whose source code does live in this repo (e.g. the api service or the browser app)
 
 ### config
 
@@ -37,7 +35,7 @@ but, our development scripts use `.env` files. `.env.static` holds some, and a g
 
 ### ports
 
-right now, ports are hardcoded as follows. i'd like to find a nice way to make these variables.
+right now, development ports are hardcoded as follows. i'd like to find a nice way to make these variables.
 
 | service     | port |
 | ----------- | ---- |
@@ -45,3 +43,9 @@ right now, ports are hardcoded as follows. i'd like to find a nice way to make t
 | api service | 5001 |
 | browser app | 5002 |
 | zitadel     | 5003 |
+
+### developer experience
+
+- live updates on save should work as expected
+- if you clean and reseed the dependency services, you'll have to manually restart the app components
+- look in `seed-idp.tf` for `"zitadel_human_user"`s for credentials to auto-created test users

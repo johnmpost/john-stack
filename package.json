@@ -2,7 +2,6 @@
   "name": "john-stack",
   "private": true,
   "scripts": {
-    "tf": "terraform -chdir=./dev/tf",
     "format": "prettier --write .",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "tsc": "tsc --noEmit",
