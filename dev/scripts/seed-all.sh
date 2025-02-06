@@ -1,6 +1,6 @@
 zitadel_is_ready=$(curl -o /dev/null -s -w "%{http_code}" "http://localhost:5003/debug/ready" | grep -q '^200$' && echo true || echo false)
 if [ "$zitadel_is_ready" = "false" ]; then
-  echo "Zitadel is not ready yet. Exiting without seeding."
+  echo "Zitadel is not ready yet. Exiting without seeding. Try again in a few seconds."
   exit 1
 fi
 

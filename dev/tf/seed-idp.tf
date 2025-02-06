@@ -63,6 +63,11 @@ resource "zitadel_org" "wayne_enterprises" {
     name = "wayne-enterprises"
 }
 
+resource "zitadel_project_grant" "wayne_enterprises_john_stack_grant" {
+  granted_org_id = zitadel_org.wayne_enterprises.id
+  project_id = zitadel_project.john_stack.id
+}
+
 resource "zitadel_human_user" "john_post" {
   org_id             = zitadel_org.john_stack_co.id
   user_name          = "john@john-stack-co.com"
