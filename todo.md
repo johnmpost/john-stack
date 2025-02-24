@@ -2,7 +2,6 @@
 - client-side routing
 - composable convenience functions for defining common actions (CRUD, etc) as restless actions
 - error handling with react-query
-- better handle browser app `exports.ts` - not globals please, use contexts instead
 - "actions" reactogen stuff
 - define query invalidations on the restless mutation definitions?
 - better logging
