@@ -38,7 +38,7 @@ const useUser = () => {
   return user;
 };
 
-const requirements = { useQuery, useMutation, zitadel, useUser };
+export const requirements = { useQuery, useMutation, zitadel, useUser };
 export const RequirementsContext = createContext<
   typeof requirements | undefined
 >(undefined);
