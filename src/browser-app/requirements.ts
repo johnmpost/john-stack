@@ -3,18 +3,19 @@ import { BrowserAppConfig } from "../common/config.ts";
 import { ConfigProvider } from "effect";
 import { mkUseMutation, mkUseQuery } from "../../libs/restless";
 import { createZitadelAuth } from "@zitadel/react";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
+import { useQuery as usePromiseQuery } from "@tanstack/react-query";
 
-export const config = pipe(
+const config = pipe(
   BrowserAppConfig,
   Ef.provide(Layer.setConfigProvider(ConfigProvider.fromJson(import.meta.env))),
   Ef.runSync,
 );
 
-export const useQuery = mkUseQuery(config.apiServiceUrl);
-export const useMutation = mkUseMutation(config.apiServiceUrl);
+const useQuery = mkUseQuery(config.apiServiceUrl);
+const useMutation = mkUseMutation(config.apiServiceUrl);
 
-export const zitadel = createZitadelAuth({
+const zitadel = createZitadelAuth({
   authority: config.zitadelUrl,
   client_id: config.zitadelClientId,
   redirect_uri: "http://localhost:5002/callback",
@@ -22,7 +23,22 @@ export const zitadel = createZitadelAuth({
   scope: "openid email profile urn:zitadel:iam:user:resourceowner",
 });
 
-export const requirements = { useQuery, useMutation, zitadel };
+const useUser = () => {
+  const { data: user } = usePromiseQuery({
+    queryKey: ["user"],
+    queryFn: () => zitadel.userManager.getUser(),
+  });
+
+  useEffect(() => {
+    if (user === null || user?.expired) {
+      zitadel.authorize();
+    }
+  }, [user]);
+
+  return user;
+};
+
+const requirements = { useQuery, useMutation, zitadel, useUser };
 export const RequirementsContext = createContext<
   typeof requirements | undefined
 >(undefined);
