@@ -9,3 +9,4 @@
 - better manage env vars in development
 - live updates with websockets
 - file storage with something s3-compatible, including local s3 server
+- admin portal

@@ -44,7 +44,7 @@ right now, development ports are hardcoded as follows. i'd like to find a nice w
 | browser app | 5002 |
 | zitadel     | 5003 |
 
-## developer experience
+## development notes
 
 - live updates on save should work as expected
 - if you clean and reseed the dependency services, you'll have to manually restart the app components
