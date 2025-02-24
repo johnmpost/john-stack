@@ -1,8 +1,9 @@
 import { Navigate } from "react-router-dom";
 import { useAsync } from "react-use";
-import { zitadel } from "./exports";
+import { useRequirements } from "./requirements";
 
 export const Callback = () => {
+  const { zitadel } = useRequirements();
   const processCallback = useAsync(() =>
     zitadel.userManager.signinRedirectCallback().catch(() => {}),
   );

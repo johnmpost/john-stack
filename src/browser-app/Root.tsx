@@ -1,10 +1,12 @@
 import { useQuery as usePromiseQuery } from "@tanstack/react-query";
-import { zitadel } from "./exports";
 import { useEffect } from "react";
 import { Dash } from "./Dash";
 import { match } from "ts-pattern";
+import { useRequirements } from "./requirements";
 
 export const Root = () => {
+  const { zitadel } = useRequirements();
+
   const { data: user } = usePromiseQuery({
     queryKey: ["user"],
     queryFn: () => zitadel.userManager.getUser(),
@@ -14,7 +16,7 @@ export const Root = () => {
     if (user === null || user?.expired) {
       zitadel.authorize();
     }
-  }, [user]);
+  }, [user, zitadel]);
 
   return match(user)
     .with(undefined, () => <div>loading app...</div>)

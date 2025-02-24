@@ -1,16 +1,16 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useMutation, useQuery } from "./exports";
 import { CreateTodo, DeleteTodo, GetTodos } from "../common/actions";
 import { v7 as uuidv7 } from "uuid";
 import { User } from "oidc-client-ts";
-import { zitadel } from "./exports";
 import { Card } from "@mui/joy";
 import { faker } from "@faker-js/faker";
+import { useRequirements } from "./requirements";
 
 type Props = { user: User };
 
 export const Dash = ({ user }: Props) => {
   const queryClient = useQueryClient();
+  const { zitadel, useMutation, useQuery } = useRequirements();
 
   const { data: todos } = useQuery(GetTodos)({
     accessToken: user.access_token,
