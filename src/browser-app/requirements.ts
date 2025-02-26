@@ -4,7 +4,10 @@ import { ConfigProvider } from "effect";
 import { mkUseMutation, mkUseQuery } from "../../libs/restless";
 import { createZitadelAuth } from "@zitadel/react";
 import { createContext, useContext, useEffect } from "react";
-import { useQuery as usePromiseQuery } from "@tanstack/react-query";
+import {
+  useQuery as usePromiseQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 const config = pipe(
   BrowserAppConfig,
@@ -24,14 +27,17 @@ const zitadel = createZitadelAuth({
 });
 
 const useUser = () => {
+  const queryClient = useQueryClient();
   const { data: user } = usePromiseQuery({
     queryKey: ["user"],
     queryFn: () => zitadel.userManager.getUser(),
   });
 
   useEffect(() => {
+    console.log(user);
+    queryClient.invalidateQueries({ queryKey: ["user"] });
     if (user === null || user?.expired) {
-      zitadel.authorize();
+      // zitadel.authorize();
     }
   }, [user]);
 

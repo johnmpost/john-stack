@@ -8,20 +8,25 @@ export const App = () => {
   const { useUser } = useRequirements();
   const user = useUser();
 
-  return match(user)
-    .with(undefined, () => <div>loading app...</div>)
-    .with(null, () => <div>not logged in. redirecting...</div>)
-    .otherwise(user => (
-      <div>
-        <p>app header</p>
+  return (
+    <div>
+      <p>app header</p>
 
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Dash user={user} />} />
-            <Route path="/test" element={<div>this is the test page</div>} />
-            <Route path="/callback" element={<Callback />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
-    ));
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={match(user)
+              .with(undefined, () => <div>loading app...</div>)
+              .with(null, () => <div>not logged in. redirecting...</div>)
+              .otherwise(user => (
+                <Dash user={user} />
+              ))}
+          />
+          <Route path="/test" element={<div>this is the test page</div>} />
+          <Route path="/callback" element={<Callback />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  );
 };
