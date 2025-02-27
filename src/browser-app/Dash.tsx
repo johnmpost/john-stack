@@ -5,6 +5,7 @@ import { User } from "oidc-client-ts";
 import { Card } from "@mui/joy";
 import { faker } from "@faker-js/faker";
 import { useRequirements } from "./requirements";
+import { Link } from "react-router-dom";
 
 type Props = { user: User };
 
@@ -33,7 +34,7 @@ export const Dash = ({ user }: Props) => {
       ) : (
         todos.map(todo => (
           <Card key={todo.id}>
-            <div>{todo.title}</div>
+            <Link to={`/todo/${todo.id}`}>{todo.title}</Link>
             <div>{todo.description}</div>
             <button
               onClick={() =>

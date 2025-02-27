@@ -1,10 +1,10 @@
 import { pipe } from "./toolbox";
-import * as Pg from "@effect/sql-pg";
 import { Config, String } from "effect";
 import { ApiServiceConfig } from "./config";
+import { PgClient } from "@effect/sql-pg";
 
 export const mkDb = () =>
-  Pg.client.layer(
+  PgClient.layerConfig(
     pipe(
       ApiServiceConfig,
       Config.map(({ dbHost, dbPort, dbName, dbUser, dbPassword }) => ({

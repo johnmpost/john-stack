@@ -1,19 +1,19 @@
-import { Schema } from "@effect/schema";
 import { Ef, M } from "./toolbox";
 import { Todo } from "./types";
 import { ActionImpl, mkMutationDef, mkQueryDef } from "../../libs/restless";
 import { NotAuthorized, NotFound } from "./errors";
-import * as Sql from "@effect/sql";
-import { pipe } from "effect";
+import { pipe, Schema } from "effect";
 import {
   getTodos as _getTodos,
   createTodo as _createTodo,
   deleteTodo as _deleteTodo,
+  getTodo as _getTodo,
 } from "./queries";
 import { flatDie } from "./utils";
 import { introspect } from "./helpers";
+import { SqlClient } from "@effect/sql";
 
-const NoInput = Schema.Struct({});
+// const NoInput = Schema.Struct({});
 const WithAccessToken = Schema.Struct({ accessToken: Schema.String });
 
 const killDefects = {
@@ -29,7 +29,7 @@ export const GetTodos = mkQueryDef(
   Schema.Array(Todo),
   NotAuthorized, // currently is actually Void, need to make `introspect` more specific
 );
-export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = ({
+export const getTodos: ActionImpl<typeof GetTodos, SqlClient.SqlClient> = ({
   accessToken,
 }) =>
   pipe(
@@ -40,16 +40,39 @@ export const getTodos: ActionImpl<typeof GetTodos, Sql.client.Client> = ({
     Ef.mapError(M.valueTags(killDefects)),
   );
 
+export const GetTodo = mkQueryDef(
+  "GetTodo",
+  Schema.Struct({ id: Schema.String }).pipe(Schema.extend(WithAccessToken)),
+  ({ id }) => ["todo", id],
+  Todo,
+  Schema.Union(NotFound, NotAuthorized),
+);
+export const getTodo: ActionImpl<typeof GetTodo, SqlClient.SqlClient> = ({
+  id,
+  accessToken,
+}) =>
+  pipe(
+    accessToken,
+    introspect,
+    Ef.map(x => x["urn:zitadel:iam:user:resourceowner:id"]),
+    Ef.flatMap(_getTodo(id)),
+    Ef.mapError(
+      M.valueTags({
+        ...killDefects,
+        NoSuchElementException: () => NotFound.make({}),
+      }),
+    ),
+  );
+
 export const CreateTodo = mkMutationDef(
   "CreateTodo",
-  // Todo.pipe(Schema.omit("orgid")).pipe(Schema.extend(WithAccessToken)),
   Schema.Struct({ todo: Todo.pipe(Schema.omit("orgId")) }).pipe(
     Schema.extend(WithAccessToken),
   ),
   Todo,
   NotAuthorized,
 );
-export const createTodo: ActionImpl<typeof CreateTodo, Sql.client.Client> = ({
+export const createTodo: ActionImpl<typeof CreateTodo, SqlClient.SqlClient> = ({
   todo,
   accessToken,
 }) =>
@@ -68,7 +91,7 @@ export const DeleteTodo = mkMutationDef(
   Todo,
   Schema.Union(NotFound, NotAuthorized),
 );
-export const deleteTodo: ActionImpl<typeof DeleteTodo, Sql.client.Client> = ({
+export const deleteTodo: ActionImpl<typeof DeleteTodo, SqlClient.SqlClient> = ({
   todoId,
   accessToken,
 }) =>
@@ -77,7 +100,6 @@ export const deleteTodo: ActionImpl<typeof DeleteTodo, Sql.client.Client> = ({
     introspect,
     Ef.map(x => x["urn:zitadel:iam:user:resourceowner:id"]),
     Ef.flatMap(_deleteTodo(todoId)),
-    x => x,
     Ef.mapError(
       M.valueTags({
         ...killDefects,

@@ -2,7 +2,6 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
-import * as Sql from "@effect/sql";
 import { ConfigProvider, Layer } from "effect";
 import { lambdaFailure, lambdaSuccess } from "./dev-utils";
 import { Ef, O, flow } from "../common/toolbox";
@@ -11,11 +10,14 @@ import {
   CreateTodo,
   deleteTodo,
   DeleteTodo,
+  getTodo,
+  GetTodo,
   getTodos,
   GetTodos,
 } from "../common/actions";
 import { Action, mkAction, mkRequestHandler } from "../../libs/restless";
 import { mkDb } from "../common/layers";
+import { PgClient } from "@effect/sql-pg";
 
 const SqlLive = mkDb();
 
@@ -23,7 +25,8 @@ const operations = [
   mkAction(GetTodos, getTodos),
   mkAction(CreateTodo, createTodo),
   mkAction(DeleteTodo, deleteTodo),
-] as Action<any, any, any, any, any, any, Sql.client.Client>[];
+  mkAction(GetTodo, getTodo),
+] as Action<any, any, any, any, any, any, PgClient.PgClient>[];
 // TODO somehow infer requirements correctly
 
 const handleRequest = mkRequestHandler(operations);

@@ -1,16 +1,17 @@
-import { A, Ef, Schema, Sql, pipe } from "./toolbox";
+import { SqlClient } from "@effect/sql";
+import { A, Ef, Schema, pipe } from "./toolbox";
 import { Todo } from "./types";
 
 export const getTodos = (orgId: string) =>
   pipe(
-    Sql.client.Client,
+    SqlClient.SqlClient,
     Ef.flatMap(sql => sql`SELECT * FROM todos WHERE org_id = ${orgId}`),
     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
   );
 
 export const createTodo = (todo: Todo) =>
   pipe(
-    Sql.client.Client,
+    SqlClient.SqlClient,
     Ef.flatMap(
       sql => sql`INSERT INTO todos ${sql.insert(todo)} RETURNING todos.*`,
     ),
@@ -20,10 +21,21 @@ export const createTodo = (todo: Todo) =>
 
 export const deleteTodo = (todoId: string) => (orgId: string) =>
   pipe(
-    Sql.client.Client,
+    SqlClient.SqlClient,
     Ef.flatMap(
       sql =>
         sql`DELETE FROM todos WHERE id = ${todoId} AND org_id = ${orgId} RETURNING todos.*`,
+    ),
+    Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
+    Ef.flatMap(A.head),
+  );
+
+export const getTodo = (todoId: string) => (orgId: string) =>
+  pipe(
+    SqlClient.SqlClient,
+    Ef.flatMap(
+      sql =>
+        sql`SELECT * FROM todos WHERE id = ${todoId} AND org_id = ${orgId}`,
     ),
     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
     Ef.flatMap(A.head),
@@ -36,14 +48,6 @@ export const deleteTodo = (todoId: string) => (orgId: string) =>
 //       sql =>
 //         sql`UPDATE todos SET ${sql.update(rest)} WHERE id = ${id} RETURNING todos.*`,
 //     ),
-//     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
-//     Ef.flatMap(A.head),
-//   );
-
-// export const getTodo = (id: string) =>
-//   pipe(
-//     Sql.client.Client,
-//     Ef.flatMap(sql => sql`SELECT * FROM todos WHERE id = ${id}`),
 //     Ef.flatMap(Schema.decodeUnknown(Schema.Array(Todo))),
 //     Ef.flatMap(A.head),
 //   );

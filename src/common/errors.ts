@@ -1,4 +1,4 @@
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 
 export const UnreachableHost = Schema.TaggedStruct("CannotConnectToHost", {});
 export type UnreachableHost = typeof UnreachableHost.Type;
