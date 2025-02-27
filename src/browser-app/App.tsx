@@ -3,24 +3,12 @@ import { Callback } from "./Callback";
 import { Dash } from "./Dash";
 import { useRequirements } from "./requirements";
 import { match, P } from "ts-pattern";
-import { useQuery as usePromiseQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 export const App = () => {
-  const { useUser, zitadel } = useRequirements();
-  // const user = useUser();
+  const { useUser } = useRequirements();
   const location = useLocation();
-
-  const { data: user } = usePromiseQuery({
-    queryKey: ["user"],
-    queryFn: () => zitadel.userManager.getUser(),
-  });
-
-  useEffect(() => {
-    if ((user === null || user?.expired) && location.pathname !== "/callback") {
-      zitadel.authorize();
-    }
-  }, [user]);
+  const mustBeAuthenticated = location.pathname !== "/callback";
+  const user = useUser(mustBeAuthenticated);
 
   return (
     <div>

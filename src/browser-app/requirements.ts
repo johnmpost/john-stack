@@ -23,18 +23,17 @@ const zitadel = createZitadelAuth({
   scope: "openid email profile urn:zitadel:iam:user:resourceowner",
 });
 
-const useUser = () => {
+const useUser = (mustBeAuthenticated: boolean) => {
   const { data: user } = usePromiseQuery({
     queryKey: ["user"],
     queryFn: () => zitadel.userManager.getUser(),
   });
 
   useEffect(() => {
-    console.log(user);
-    if (user === null || user?.expired) {
-      // zitadel.authorize();
+    if (mustBeAuthenticated && (user === null || user?.expired)) {
+      zitadel.authorize();
     }
-  }, [user]);
+  }, [user, mustBeAuthenticated]);
 
   return user;
 };

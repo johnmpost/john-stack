@@ -9,8 +9,7 @@ export const Callback = () => {
   const processCallback = useAsync(() =>
     zitadel.userManager
       .signinRedirectCallback()
-      .then(user => queryClient.setQueryData(["user"], () => user))
-      .catch(() => {}),
+      .then(() => queryClient.invalidateQueries({ queryKey: ["user"] })),
   );
 
   return processCallback.loading ? (
