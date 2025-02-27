@@ -1,32 +1,38 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Callback } from "./Callback";
 import { Dash } from "./Dash";
 import { useRequirements } from "./requirements";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
+import { useQuery as usePromiseQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export const App = () => {
-  const { useUser } = useRequirements();
-  const user = useUser();
+  const { useUser, zitadel } = useRequirements();
+  // const user = useUser();
+  const location = useLocation();
+
+  const { data: user } = usePromiseQuery({
+    queryKey: ["user"],
+    queryFn: () => zitadel.userManager.getUser(),
+  });
+
+  useEffect(() => {
+    if ((user === null || user?.expired) && location.pathname !== "/callback") {
+      zitadel.authorize();
+    }
+  }, [user]);
 
   return (
     <div>
       <p>app header</p>
-
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={match(user)
-              .with(undefined, () => <div>loading app...</div>)
-              .with(null, () => <div>not logged in. redirecting...</div>)
-              .otherwise(user => (
-                <Dash user={user} />
-              ))}
-          />
-          <Route path="/test" element={<div>this is the test page</div>} />
-          <Route path="/callback" element={<Callback />} />
-        </Routes>
-      </BrowserRouter>
+      {match([location.pathname, user])
+        .with(["/callback", P._], () => <Callback />)
+        .with([P._, undefined], () => <div>loading app...</div>)
+        .with([P._, null], () => <div>not logged in. redirecting...</div>)
+        .with(["/", P.nonNullable], ([, user]) => <Dash user={user} />)
+        .otherwise(() => (
+          <div>error 404</div>
+        ))}
     </div>
   );
 };
