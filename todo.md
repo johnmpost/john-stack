@@ -1,5 +1,4 @@
 - refine type safety and organization around api index.ts
-- client-side routing
 - composable convenience functions for defining common actions (CRUD, etc) as restless actions
 - error handling with react-query
 - "actions" reactogen stuff
