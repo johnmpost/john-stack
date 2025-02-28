@@ -7,15 +7,23 @@ import { faker } from "@faker-js/faker";
 import { useRequirements } from "./requirements";
 import { Link } from "react-router-dom";
 
-type Props = { user: User };
-
-export const Dash = ({ user }: Props) => {
+export const Dash = () => {
   const queryClient = useQueryClient();
-  const { zitadel, useMutation, useQuery } = useRequirements();
+  const { zitadel, useMutation, useQuery, useUser } = useRequirements();
 
-  const { data: todos } = useQuery(GetTodos)({
-    accessToken: user.access_token,
-  })({});
+  const user = useUser(true);
+
+  const useDependentQuery =
+    <T, U>(dependency: T | undefined) =>
+    (query: (t: T) => U) => {
+      return dependency ? query(dependency) : undefined;
+    };
+
+  const { data: todos } = useDependentQuery(user)(user =>
+    useQuery(GetTodos)({
+      accessToken: user.access_token,
+    }),
+  );
 
   const { mutate: createTodo } = useMutation(CreateTodo)({
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
@@ -27,8 +35,7 @@ export const Dash = ({ user }: Props) => {
 
   return (
     <div>
-      <p>welcome {user.profile.email}</p>
-      <p>{user.access_token}</p>
+      <p>welcome {user?.profile.email ?? "loading user..."}</p>
       {todos === undefined ? (
         <div>loading todos...</div>
       ) : (
@@ -36,17 +43,17 @@ export const Dash = ({ user }: Props) => {
           <Card key={todo.id}>
             <Link to={`/todo/${todo.id}`}>{todo.title}</Link>
             <div>{todo.description}</div>
-            <button
+            {/* <button
               onClick={() =>
                 deleteTodo({ todoId: todo.id, accessToken: user.access_token })
               }
             >
               delete
-            </button>
+            </button> */}
           </Card>
         ))
       )}
-      <button
+      {/* <button
         onClick={() =>
           createTodo({
             todo: {
@@ -59,7 +66,7 @@ export const Dash = ({ user }: Props) => {
         }
       >
         create new todo
-      </button>
+      </button> */}
       <button onClick={() => zitadel.signout()}>sign out</button>
     </div>
   );
